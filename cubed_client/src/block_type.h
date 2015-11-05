@@ -1,0 +1,13 @@
+#ifndef CUBED_BLOCK_TYPES_H
+#define CUBED_BLOCK_TYPES_H
+
+enum block_type
+{
+	BLOCK_AIR,
+	BLOCK_GRASS,
+	BLOCK_STONE,
+	BLOCK_DIRT,
+	NUM_BLOCK_TYPES
+};
+
+#endif

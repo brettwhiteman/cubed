@@ -1,0 +1,7 @@
+*.sdf
+*.opensdf
+/.vs
+/Debug
+/Release
+/cubed_client/Debug
+/cubed_client/Release
