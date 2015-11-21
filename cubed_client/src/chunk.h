@@ -14,7 +14,7 @@ public:
 	Chunk(int x, int y, int z);
 
 	void ensure_filled();
-	void ensure_updated(World& world);
+	bool update(World& world);
 	void set_dirty() { m_up_to_date = false; }
 	void render() const { m_mesh.render(); }
 

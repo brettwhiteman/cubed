@@ -26,11 +26,11 @@ void Chunk::ensure_filled()
 	m_filled = true;
 }
 
-void Chunk::ensure_updated(World& world)
+bool Chunk::update(World& world)
 {
 	if (m_up_to_date)
 	{
-		return;
+		return false;
 	}
 
 	ensure_filled();
@@ -231,4 +231,6 @@ void Chunk::ensure_updated(World& world)
 
 	m_mesh.set_data(vertices.data(), indices.data(), vi, ii);
 	m_up_to_date = true;
+
+	return true;
 }

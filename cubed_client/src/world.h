@@ -25,6 +25,8 @@ private:
 
 	int m_render_distance;
 	std::unordered_map<int, std::unordered_map<int, std::unordered_map<int, std::unique_ptr<Chunk>>>> m_loaded_chunks;
+
+	static const int CHUNK_UPDATES_PER_FRAME = 1;
 };
 
 #endif

@@ -23,7 +23,7 @@ World::World(int render_distance)
 		{
 			for (auto& z : y.second)
 			{
-				z.second->ensure_updated(*this);
+				z.second->update(*this);
 			}
 		}
 	}
@@ -33,13 +33,18 @@ void World::update(const glm::vec3& center)
 {
 	update_loaded_chunks(center);
 
+	int limit = CHUNK_UPDATES_PER_FRAME;
+
 	for (auto& x : m_loaded_chunks)
 	{
 		for (auto& y : x.second)
 		{
 			for (auto& z : y.second)
 			{
-				z.second->ensure_updated(*this);
+				if (z.second->update(*this) && --limit <= 0)
+				{
+					return;
+				}
 			}
 		}
 	}
