@@ -6,14 +6,13 @@ Camera::Camera(glm::vec3 pos, float fov, float aspect, float z_near, float z_far
 	m_forward(0.0f, 0.0f, 1.0f),
 	m_up(0.0f, 1.0f, 0.0f),
 	m_yaw(0.0f),
-	m_pitch(0.0f),
-	m_projection(glm::perspective(fov, aspect, z_near, z_far))
+	m_pitch(0.0f)
 {
 }
 
-glm::mat4 Camera::get_view_projection_matrix()
+glm::mat4 Camera::get_matrix()
 {
-	return m_projection * glm::lookAt(m_pos, m_pos + m_forward, m_up);
+	return glm::lookAt(m_pos, m_pos + m_forward, m_up);
 }
 
 void Camera::update()

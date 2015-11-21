@@ -8,7 +8,7 @@ class Camera
 public:
 	Camera(glm::vec3 pos, float fov, float aspect, float zNear, float zFar);
 
-	glm::mat4 get_view_projection_matrix();
+	glm::mat4 get_matrix();
 	void update();
 	void move_right_relative(float amount);
 	void move_forward_relative(float amount);
@@ -27,7 +27,6 @@ private:
 	glm::vec3 m_up;
 	float m_yaw;
 	float m_pitch;
-	glm::mat4 m_projection;
 };
 
 #endif

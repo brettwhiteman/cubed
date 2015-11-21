@@ -31,6 +31,7 @@ RenderingEngine::RenderingEngine(Window& window)
 	window.add_resize_handler([this](auto new_size)
 	{
 		m_projection = glm::perspective(PERSPECTIVE_FOV, static_cast<float>(new_size.first) / new_size.second, PERSPECTIVE_Z_NEAR, PERSPECTIVE_Z_FAR);
+		glViewport(0, 0, new_size.first, new_size.second);
 	});
 }
 

@@ -55,7 +55,7 @@ void Game::update()
 	m_window.update();
 	m_player.update(m_input);
 	m_world.update(m_player.get_camera().get_position());
-	m_rendering_engine.set_mat4("transform", m_player.get_camera().get_view_projection_matrix());
+	m_rendering_engine.set_mat4("transform", m_rendering_engine.get_projection_matrix() * m_player.get_camera().get_matrix());
 	m_rendering_engine.update_uniforms();
 }
 
