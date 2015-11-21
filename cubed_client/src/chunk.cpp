@@ -227,8 +227,8 @@ void Chunk::ensure_updated(World& world)
 				}
 			}
 		}
-
-		m_mesh.set_data(vertices.data(), indices.data(), vi, ii);
-		m_up_to_date = true;
 	}
+
+	m_mesh.set_data(vertices.data(), indices.data(), vi, ii);
+	m_up_to_date = true;
 }
