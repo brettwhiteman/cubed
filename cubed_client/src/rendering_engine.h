@@ -36,7 +36,7 @@ private:
 	std::unordered_map<std::string, Texture*> m_textures;
 	std::unordered_map<std::string, glm::vec4> m_vec4_vars;
 	std::unordered_map<std::string, glm::mat4> m_mat4_vars;
-	const float PERSPECTIVE_ASPECT;
+	const float PERSPECTIVE_FOV;
 	const float PERSPECTIVE_Z_NEAR;
 	const float PERSPECTIVE_Z_FAR;
 	glm::mat4 m_projection;

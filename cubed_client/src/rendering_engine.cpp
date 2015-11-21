@@ -6,7 +6,7 @@
 #include "window.h"
 
 RenderingEngine::RenderingEngine(Window& window)
-	: PERSPECTIVE_ASPECT(glm::pi<float>() / 3.0f),
+	: PERSPECTIVE_FOV(glm::pi<float>() / 3.0f),
 	PERSPECTIVE_Z_NEAR(0.05f),
 	PERSPECTIVE_Z_FAR(1000.0f)
 {
@@ -26,10 +26,11 @@ RenderingEngine::RenderingEngine(Window& window)
 	glEnable(GL_DEPTH_TEST);
 
 	auto window_size = window.get_window_size();
-	m_projection = glm::perspective(PERSPECTIVE_ASPECT, static_cast<float>(window_size.first) / window_size.second, PERSPECTIVE_Z_NEAR, PERSPECTIVE_Z_FAR);
+	m_projection = glm::perspective(PERSPECTIVE_FOV, static_cast<float>(window_size.first) / window_size.second, PERSPECTIVE_Z_NEAR, PERSPECTIVE_Z_FAR);
+
 	window.add_resize_handler([this](auto new_size)
 	{
-		m_projection = glm::perspective(PERSPECTIVE_ASPECT, static_cast<float>(new_size.first) / new_size.second, PERSPECTIVE_Z_NEAR, PERSPECTIVE_Z_FAR);
+		m_projection = glm::perspective(PERSPECTIVE_FOV, static_cast<float>(new_size.first) / new_size.second, PERSPECTIVE_Z_NEAR, PERSPECTIVE_Z_FAR);
 	});
 }
 
@@ -63,8 +64,8 @@ void RenderingEngine::load_shader(std::string name, const std::vector<std::strin
 {
 	try
 	{
-		auto s = new Shader(name, attributes, uniforms);
-		m_shaders[std::move(name)] = s;
+		auto shader = new Shader(name, attributes, uniforms);
+		m_shaders[std::move(name)] = shader;
 	}
 	catch(const ShaderException& e)
 	{
@@ -88,8 +89,8 @@ void RenderingEngine::load_texture(std::string name)
 {
 	try
 	{
-		auto t = new Texture(name);
-		m_textures[std::move(name)] = t;
+		auto texture = new Texture(name);
+		m_textures[std::move(name)] = texture;
 	}
 	catch (const TextureException& e)
 	{
