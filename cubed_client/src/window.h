@@ -19,6 +19,7 @@ public:
 	void update();
 	void swap_buffers();
 	void add_resize_handler(std::function<void(const std::pair<int, int>&)> handler) { m_window_resize_handlers.emplace_back(std::move(handler)); }
+	void center_mouse() { SDL_WarpMouseInWindow(m_window, m_window_center.first, m_window_center.second); }
 
 	const std::pair<int, int>& get_window_size() const { return m_window_size; }
 
@@ -27,6 +28,7 @@ private:
 	SDL_GLContext m_context;
 	InputManager& m_input;
 	std::pair<int, int> m_window_size;
+	std::pair<int, int> m_window_center;
 	std::vector<std::function<void(const std::pair<int, int>&)>> m_window_resize_handlers;
 };
 

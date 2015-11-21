@@ -1,7 +1,8 @@
 #include "input_manager.h"
 
 InputManager::InputManager()
-	: m_quit(false)
+	: m_quit(false),
+	m_mouse_offset(0, 0)
 {
 	m_key_states.fill(false);
 	m_mouse_button_states.fill(false);

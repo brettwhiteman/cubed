@@ -32,6 +32,8 @@ Window::Window(const std::string& title, int width, int height, InputManager& in
 	}
 
 	m_window_size = std::make_pair(width, height);
+	m_window_center = std::make_pair(width / 2, height / 2);
+	center_mouse();
 }
 
 Window::~Window()
@@ -74,6 +76,8 @@ void Window::update()
 				{
 					case SDL_WINDOWEVENT_SIZE_CHANGED:
 						m_window_size = std::make_pair(e.window.data1, e.window.data2);
+						m_window_center = std::make_pair(e.window.data1 / 2, e.window.data2 / 2);
+						center_mouse();
 						
 						for (auto& handler : m_window_resize_handlers)
 						{
@@ -86,6 +90,14 @@ void Window::update()
 				break;
 		}
 	}
+
+	int x;
+	int y;
+
+	SDL_GetMouseState(&x, &y);
+
+	m_input.set_mouse_offset(std::make_pair(x - m_window_center.first, y - m_window_center.second));
+	center_mouse();
 }
 
 void Window::swap_buffers()

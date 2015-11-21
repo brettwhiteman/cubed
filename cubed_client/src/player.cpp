@@ -29,13 +29,9 @@ void Player::update(InputManager& input)
 		m_camera.move_forward_relative(0.5f);
 	}
 
-	if (input.is_key_down(InputManager::KEY_F))
-	{
-		m_camera.move_up(-0.5f);
-	}
+	auto offset = input.get_mouse_offset();
+	m_camera.rotate_yaw(static_cast<float>(offset.first) * -0.001f);
+	m_camera.rotate_pitch(static_cast<float>(offset.second) * 0.001f);
 
-	if (input.is_key_down(InputManager::KEY_R))
-	{
-		m_camera.move_up(0.5f);
-	}
+	m_camera.update();
 }
