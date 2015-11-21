@@ -2,9 +2,9 @@
 #include "world_gen/world_gen.h"
 #include "world.h"
 
-const blocks chunk::blocks;
+const Blocks Chunk::blocks;
 
-chunk::chunk(int x, int y, int z)
+Chunk::Chunk(int x, int y, int z)
 	: m_x{x},
 	m_y{y},
 	m_z{z},
@@ -15,18 +15,18 @@ chunk::chunk(int x, int y, int z)
 	m_blocks.fill(BLOCK_AIR);
 }
 
-void chunk::ensure_filled()
+void Chunk::ensure_filled()
 {
 	if (m_filled)
 	{
 		return;
 	}
 
-	world_gen::fill_chunk(*this);
+	WorldGen::fill_chunk(*this);
 	m_filled = true;
 }
 
-void chunk::ensure_updated(world& world)
+void Chunk::ensure_updated(World& world)
 {
 	if (m_up_to_date)
 	{
@@ -35,7 +35,7 @@ void chunk::ensure_updated(world& world)
 
 	ensure_filled();
 
-	auto vertices = std::array<vertex_pt, NUM_BLOCKS * VERTICES_PER_BLOCK>{};
+	auto vertices = std::array<VertexPT, NUM_BLOCKS * VERTICES_PER_BLOCK>{};
 	auto indices = std::array<unsigned short, NUM_BLOCKS * INDICES_PER_BLOCK>{};
 
 	int vi = 0;

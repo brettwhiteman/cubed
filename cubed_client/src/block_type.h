@@ -1,7 +1,7 @@
-#ifndef CUBED_BLOCK_TYPES_H
-#define CUBED_BLOCK_TYPES_H
+#ifndef CUBED_BLOCK_TYPE_H
+#define CUBED_BLOCK_TYPE_H
 
-enum block_type
+enum BlockType
 {
 	BLOCK_AIR,
 	BLOCK_GRASS,

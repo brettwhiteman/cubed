@@ -5,14 +5,14 @@
 #include <glm/include/gtc/matrix_transform.hpp>
 #include "window.h"
 
-rendering_engine::rendering_engine(window& window)
+RenderingEngine::RenderingEngine(Window& window)
 	: PERSPECTIVE_ASPECT(glm::pi<float>() / 3.0f),
 	PERSPECTIVE_Z_NEAR(0.05f),
 	PERSPECTIVE_Z_FAR(1000.0f)
 {
 	if(glewInit() != GLEW_OK)
 	{
-		throw rendering_engine_exception("glewInit() failed");
+		throw RenderingEngineException("glewInit() failed");
 	}
 
 	glClearColor(1.0f, 1.0f, 0.5f, 1.0f);
@@ -33,7 +33,7 @@ rendering_engine::rendering_engine(window& window)
 	});
 }
 
-rendering_engine::~rendering_engine()
+RenderingEngine::~RenderingEngine()
 {
 	for(auto shader : m_shaders)
 	{
@@ -46,7 +46,7 @@ rendering_engine::~rendering_engine()
 	}
 }
 
-void rendering_engine::update_uniforms()
+void RenderingEngine::update_uniforms()
 {
 	for(auto shader : m_shaders)
 	{
@@ -54,90 +54,90 @@ void rendering_engine::update_uniforms()
 	}
 }
 
-void rendering_engine::clear()
+void RenderingEngine::clear()
 {
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 }
 
-void rendering_engine::load_shader(std::string name, const std::vector<std::string>& attributes, const std::vector<uniform_declaration>& uniforms)
+void RenderingEngine::load_shader(std::string name, const std::vector<std::string>& attributes, const std::vector<UniformDeclaration>& uniforms)
 {
 	try
 	{
-		auto s = new shader(name, attributes, uniforms);
+		auto s = new Shader(name, attributes, uniforms);
 		m_shaders[std::move(name)] = s;
 	}
-	catch(const shader_exception& e)
+	catch(const ShaderException& e)
 	{
-		throw rendering_engine_exception(e.what());
+		throw RenderingEngineException(e.what());
 	}	
 }
 
-void rendering_engine::use_shader(const std::string& name)
+void RenderingEngine::use_shader(const std::string& name)
 {
 	auto it = m_shaders.find(name);
 
 	if(it == m_shaders.end())
 	{
-		throw rendering_engine_exception("The shader '" + name + "' doesn't exist");
+		throw RenderingEngineException("The shader '" + name + "' doesn't exist");
 	}
 
 	it->second->bind();
 }
 
-void rendering_engine::load_texture(std::string name)
+void RenderingEngine::load_texture(std::string name)
 {
 	try
 	{
-		auto t = new texture(name);
+		auto t = new Texture(name);
 		m_textures[std::move(name)] = t;
 	}
-	catch (const texture_exception& e)
+	catch (const TextureException& e)
 	{
-		throw rendering_engine_exception(e.what());
+		throw RenderingEngineException(e.what());
 	}
 }
 
-void rendering_engine::use_texture(const std::string& name)
+void RenderingEngine::use_texture(const std::string& name)
 {
 	auto it = m_textures.find(name);
 
 	if (it == m_textures.end())
 	{
-		throw rendering_engine_exception("The texture '" + name + "' doesn't exist");
+		throw RenderingEngineException("The texture '" + name + "' doesn't exist");
 	}
 
 	it->second->bind();
 }
 
-void rendering_engine::set_vec4(std::string name, glm::vec4 value)
+void RenderingEngine::set_vec4(std::string name, glm::vec4 value)
 {
 	m_vec4_vars[std::move(name)] = std::move(value);
 }
 
-const glm::vec4& rendering_engine::get_vec4(const std::string& name)
+const glm::vec4& RenderingEngine::get_vec4(const std::string& name)
 {
 	auto it = m_vec4_vars.find(name);
 
 	if(it == m_vec4_vars.end())
 	{
-		throw rendering_engine_exception("Unable to resolve rendering var '" + name + "'");
+		throw RenderingEngineException("Unable to resolve rendering var '" + name + "'");
 	}
 
 	return it->second;
 }
 
-void rendering_engine::set_mat4(std::string name, glm::mat4 value)
+void RenderingEngine::set_mat4(std::string name, glm::mat4 value)
 {
 	m_mat4_vars[std::move(name)] = std::move(value);
 }
 
-const glm::mat4& rendering_engine::get_mat4(const std::string& name)
+const glm::mat4& RenderingEngine::get_mat4(const std::string& name)
 {
 	auto it = m_mat4_vars.find(name);
 
 	if(it == m_mat4_vars.end())
 	{
-		throw rendering_engine_exception("Unable to resolve rendering var '" + name + "'");
+		throw RenderingEngineException("Unable to resolve rendering var '" + name + "'");
 	}
 
 	return it->second;

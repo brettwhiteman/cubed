@@ -1,13 +1,13 @@
 #include "input_manager.h"
 
-input_manager::input_manager()
+InputManager::InputManager()
 	: m_quit(false)
 {
 	m_key_states.fill(false);
 	m_mouse_button_states.fill(false);
 }
 
-void input_manager::handle_key_down(key k)
+void InputManager::handle_key_down(Key k)
 {
 	m_key_states[k] = true;
 
@@ -20,7 +20,7 @@ void input_manager::handle_key_down(key k)
 	}
 }
 
-void input_manager::handle_key_up(key k)
+void InputManager::handle_key_up(Key k)
 {
 	m_key_states[k] = false;
 
@@ -33,7 +33,7 @@ void input_manager::handle_key_up(key k)
 	}
 }
 
-void input_manager::handle_mouse_down(mouse_button mb)
+void InputManager::handle_mouse_down(MouseButton mb)
 {
 	switch(mb)
 	{
@@ -59,7 +59,7 @@ void input_manager::handle_mouse_down(mouse_button mb)
 	}
 }
 
-void input_manager::handle_mouse_up(mouse_button mb)
+void InputManager::handle_mouse_up(MouseButton mb)
 {
 	switch (mb)
 	{

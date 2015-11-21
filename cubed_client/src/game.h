@@ -7,10 +7,10 @@
 #include "world.h"
 #include "player.h"
 
-class game
+class Game
 {
 public:
-	game();
+	Game();
 
 	void run();
 
@@ -18,11 +18,11 @@ private:
 	void update();
 	void render();
 
-	input_manager m_input;
-	window m_window;
-	rendering_engine m_rendering_engine;
-	world m_world;
-	player m_player;
+	InputManager m_input;
+	Window m_window;
+	RenderingEngine m_rendering_engine;
+	World m_world;
+	Player m_player;
 };
 
 #endif

@@ -3,7 +3,7 @@
 #include <iterator>
 #include "rendering_engine.h"
 
-shader::shader(const std::string& filename, const std::vector<std::string>& attributes, const std::vector<uniform_declaration>& uniforms)
+Shader::Shader(const std::string& filename, const std::vector<std::string>& attributes, const std::vector<UniformDeclaration>& uniforms)
 {
 	m_program = glCreateProgram();
 
@@ -31,7 +31,7 @@ shader::shader(const std::string& filename, const std::vector<std::string>& attr
 	}
 }
 
-shader::~shader()
+Shader::~Shader()
 {
 	glDetachShader(m_program, m_shaders[VERTEX_SHADER]);
 	glDeleteShader(m_shaders[VERTEX_SHADER]);
@@ -42,12 +42,12 @@ shader::~shader()
 	glDeleteProgram(m_program);
 }
 
-void shader::bind() const
+void Shader::bind() const
 {
 	glUseProgram(m_program);
 }
 
-void shader::update_uniforms(rendering_engine& re)
+void Shader::update_uniforms(RenderingEngine& re)
 {
 	for(auto uniform : m_uniforms)
 	{
@@ -55,13 +55,13 @@ void shader::update_uniforms(rendering_engine& re)
 	}
 }
 
-std::string shader::load_shader(const std::string& filename)
+std::string Shader::load_shader(const std::string& filename)
 {
 	std::ifstream file(filename);
 
 	if(!file.is_open())
 	{
-		throw shader_exception("Failed to load shader file: " + filename);
+		throw ShaderException("Failed to load shader file: " + filename);
 	}
 
 	std::noskipws(file);
@@ -71,19 +71,19 @@ std::string shader::load_shader(const std::string& filename)
 
 	if(source.empty())
 	{
-		throw shader_exception("Failed to load shader file: " + filename);
+		throw ShaderException("Failed to load shader file: " + filename);
 	}
 
 	return source;
 }
 
-GLuint shader::create_shader(const std::string& source, GLenum shader_type)
+GLuint Shader::create_shader(const std::string& source, GLenum shader_type)
 {
 	GLuint shader = glCreateShader(shader_type);
 
 	if(!shader)
 	{
-		throw shader_exception("Shader creation failed");
+		throw ShaderException("Shader creation failed");
 	}
 
 	const GLchar* source_strings[1];
@@ -101,7 +101,7 @@ GLuint shader::create_shader(const std::string& source, GLenum shader_type)
 	return shader;
 }
 
-void shader::check_shader_error(GLuint shader, GLuint flag, bool is_program, const std::string& error_message)
+void Shader::check_shader_error(GLuint shader, GLuint flag, bool is_program, const std::string& error_message)
 {
 	GLint success = 0;
 	GLchar error[1024] = {0};
@@ -126,6 +126,6 @@ void shader::check_shader_error(GLuint shader, GLuint flag, bool is_program, con
 			glGetShaderInfoLog(shader, sizeof(error), 0, error);
 		}
 
-		throw shader_exception(error_message + ": " + error);
+		throw ShaderException(error_message + ": " + error);
 	}
 }

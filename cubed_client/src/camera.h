@@ -3,10 +3,10 @@
 
 #include <glm/include/glm.hpp>
 
-class camera
+class Camera
 {
 public:
-	camera(glm::vec3 pos, float fov, float aspect, float zNear, float zFar);
+	Camera(glm::vec3 pos, float fov, float aspect, float zNear, float zFar);
 
 	glm::mat4 get_view_projection_matrix();
 	void update();

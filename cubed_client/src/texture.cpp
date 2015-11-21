@@ -3,7 +3,7 @@
 #define STB_IMAGE_IMPLEMENTATION
 #include <stb/include/stb_image.h>
 
-texture::texture(const std::string& filename)
+Texture::Texture(const std::string& filename)
 {
 	std::string path = "res\\textures\\" + filename;
 
@@ -15,7 +15,7 @@ texture::texture(const std::string& filename)
 
 	if(!image)
 	{
-		throw texture_exception("Failed to load texture: " + path);
+		throw TextureException("Failed to load texture: " + path);
 	}
 
 	glGenTextures(1, &m_texture);
@@ -32,7 +32,7 @@ texture::texture(const std::string& filename)
 	stbi_image_free(image);
 }
 
-texture::texture(const unsigned char* pixels, int width, int height)
+Texture::Texture(const unsigned char* pixels, int width, int height)
 {
 	glGenTextures(1, &m_texture);
 
@@ -46,14 +46,14 @@ texture::texture(const unsigned char* pixels, int width, int height)
 	glBindTexture(GL_TEXTURE_2D, 0);
 }
 
-texture::~texture()
+Texture::~Texture()
 {
 	glBindTexture(GL_TEXTURE_2D, 0);
 
 	glDeleteTextures(1, &m_texture);
 }
 
-void texture::bind()
+void Texture::bind()
 {
 	glBindTexture(GL_TEXTURE_2D, m_texture);
 }

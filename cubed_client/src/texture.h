@@ -5,13 +5,13 @@
 #include <glew/include/glew.h>
 #include <string>
 
-class texture
+class Texture
 {
 public:
-	texture(const std::string& filename);
-	texture(const unsigned char* pixels, int width, int height);
-	texture(const texture&) = delete;
-	~texture();
+	Texture(const std::string& filename);
+	Texture(const unsigned char* pixels, int width, int height);
+	Texture(const Texture&) = delete;
+	~Texture();
 
 	void bind();
 
@@ -21,10 +21,10 @@ private:
 
 #include "cubed_exception.h"
 
-class texture_exception : public cubed_exception
+class TextureException : public CubedException
 {
 public:
-	texture_exception(std::string message) : cubed_exception(std::move(message)) { }
+	TextureException(std::string message) : CubedException(std::move(message)) { }
 };
 
 #endif

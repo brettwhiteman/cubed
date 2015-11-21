@@ -4,20 +4,20 @@
 #include <glm/include/glm.hpp>
 #include "camera.h"
 
-class input_manager;
+class InputManager;
 
-class player
+class Player
 {
 public:
-	player(glm::vec3 position);
+	Player(glm::vec3 position);
 
-	void update(input_manager& input);
+	void update(InputManager& input);
 
 	const glm::vec3& get_position() const { return m_camera.get_position(); }
-	camera& get_camera() { return m_camera; }
+	Camera& get_camera() { return m_camera; }
 
 private:
-	camera m_camera;
+	Camera m_camera;
 };
 
 #endif

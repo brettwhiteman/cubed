@@ -6,26 +6,26 @@
 #include <glm/include/glm.hpp>
 #include <utility>
 
-struct vertex_pt
+struct VertexPT
 {
-	vertex_pt() { }
-	vertex_pt(glm::vec3 position, glm::vec2 tex_coord) : position(std::move(position)), tex_coord(std::move(tex_coord)) { }
+	VertexPT() { }
+	VertexPT(glm::vec3 position, glm::vec2 tex_coord) : position(std::move(position)), tex_coord(std::move(tex_coord)) { }
 
 	glm::vec3 position;
 	glm::vec2 tex_coord;
 };
 
-class mesh_pti
+class MeshPTI
 {
 public:
-	mesh_pti(bool dynamic);
-	mesh_pti(vertex_pt vertices[], unsigned short indices[], GLsizei num_vertices, GLsizei num_indices, bool dynamic = false);
-	mesh_pti(const mesh_pti&) = delete;
-	~mesh_pti();
+	MeshPTI(bool dynamic);
+	MeshPTI(VertexPT vertices[], unsigned short indices[], GLsizei num_vertices, GLsizei num_indices, bool dynamic = false);
+	MeshPTI(const MeshPTI&) = delete;
+	~MeshPTI();
 
 	void render() const;
 
-	void set_data(vertex_pt vertices[], unsigned short indices[], GLsizei num_vertices, GLsizei num_indices);
+	void set_data(VertexPT vertices[], unsigned short indices[], GLsizei num_vertices, GLsizei num_indices);
 	void clear_data();
 
 private:

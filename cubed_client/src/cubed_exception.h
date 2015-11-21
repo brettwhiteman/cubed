@@ -5,11 +5,11 @@
 #include <string>
 #include <utility>
 
-class cubed_exception : public std::exception
+class CubedException : public std::exception
 {
 public:
-	cubed_exception(std::string message) : m_message(std::move(message)) { }
-	virtual ~cubed_exception() { }
+	CubedException(std::string message) : m_message(std::move(message)) { }
+	virtual ~CubedException() { }
 
 	const char* what() const { return m_message.c_str(); }
 

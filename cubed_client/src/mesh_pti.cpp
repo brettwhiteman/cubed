@@ -1,6 +1,6 @@
 #include "mesh_pti.h"
 
-mesh_pti::mesh_pti(bool dynamic)
+MeshPTI::MeshPTI(bool dynamic)
 	: m_dynamic(dynamic),
 	m_num_vertices(0),
 	m_num_indices(0),
@@ -9,14 +9,14 @@ mesh_pti::mesh_pti(bool dynamic)
 {
 }
 
-mesh_pti::mesh_pti(vertex_pt vertices[], unsigned short indices[], GLsizei numVertices,	GLsizei numIndices, bool dynamic)
+MeshPTI::MeshPTI(VertexPT vertices[], unsigned short indices[], GLsizei numVertices,	GLsizei numIndices, bool dynamic)
 	: m_dynamic(dynamic), m_num_vertices(0), m_num_indices(0), m_vbo(false), m_vao(true)
 {
 	glGenVertexArrays(1, m_vertex_arrays);
 	set_data(vertices, indices, numVertices, numIndices);
 }
 
-mesh_pti::~mesh_pti()
+MeshPTI::~MeshPTI()
 {
 	if(m_vbo)
 	{
@@ -29,7 +29,7 @@ mesh_pti::~mesh_pti()
 	}
 }
 
-void mesh_pti::render() const
+void MeshPTI::render() const
 {
 	if(m_num_indices > 0)
 	{
@@ -38,7 +38,7 @@ void mesh_pti::render() const
 	}
 }
 
-void mesh_pti::set_data(vertex_pt vertices[], unsigned short indices[], GLsizei numVertices, GLsizei numIndices)
+void MeshPTI::set_data(VertexPT vertices[], unsigned short indices[], GLsizei numVertices, GLsizei numIndices)
 {
 	if(!m_vao)
 	{
@@ -74,7 +74,7 @@ void mesh_pti::set_data(vertex_pt vertices[], unsigned short indices[], GLsizei 
 	m_num_indices = numIndices;
 }
 
-void mesh_pti::clear_data()
+void MeshPTI::clear_data()
 {
 	glDeleteBuffers(NUM_BUFFERS, m_buffers);
 	m_num_vertices = 0;

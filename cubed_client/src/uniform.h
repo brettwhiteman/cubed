@@ -7,26 +7,26 @@
 #include <glew/include/glew.h>
 #include <glm/include/glm.hpp>
 
-enum uniform_type
+enum UniformType
 {
 	UNIFORMTYPE_VEC4,
 	UNIFORMTYPE_MAT4
 };
 
-class rendering_engine;
+class RenderingEngine;
 
-class uniform
+class Uniform
 {
 public:
-	uniform(uniform_type type, std::string name, GLint location);
+	Uniform(UniformType type, std::string name, GLint location);
 
-	void update(rendering_engine& re);
+	void update(RenderingEngine& re);
 
 private:
 	void set_value(const glm::vec4& value);
 	void set_value(const glm::mat4& value);
 
-	uniform_type m_type;
+	UniformType m_type;
 	std::string m_name;
 	GLint m_location;
 };

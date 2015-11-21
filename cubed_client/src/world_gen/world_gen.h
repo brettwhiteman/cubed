@@ -4,14 +4,14 @@
 #include <glm/include/glm.hpp>
 #include "../block_type.h"
 
-class chunk;
+class Chunk;
 
-namespace world_gen
+namespace WorldGen
 {
-	void fill_chunk(chunk& chunk);
+	void fill_chunk(Chunk& chunk);
 	glm::vec3 get_spawn_pos();
 	int get_height(int x, int z);
-	block_type get_block_type(int x, int y, int z, int height);
+	BlockType get_block_type(int x, int y, int z, int height);
 }
 
 #endif

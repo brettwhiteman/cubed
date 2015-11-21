@@ -7,14 +7,14 @@
 #include <vector>
 #include <utility>
 
-class input_manager;
+class InputManager;
 
-class window
+class Window
 {
 public:
-	window(const std::string& title, int width, int height, input_manager& input);
-	~window();
-	window(const window&) = delete;
+	Window(const std::string& title, int width, int height, InputManager& input);
+	~Window();
+	Window(const Window&) = delete;
 
 	void update();
 	void swap_buffers();
@@ -25,17 +25,17 @@ public:
 private:
 	SDL_Window* m_window;
 	SDL_GLContext m_context;
-	input_manager& m_input;
+	InputManager& m_input;
 	std::pair<int, int> m_window_size;
 	std::vector<std::function<void(const std::pair<int, int>&)>> m_window_resize_handlers;
 };
 
 #include "cubed_exception.h"
 
-class window_exception : public cubed_exception
+class WindowException : public CubedException
 {
 public:
-	window_exception(std::string message) : cubed_exception(std::move(message)) { }
+	WindowException(std::string message) : CubedException(std::move(message)) { }
 };
 
 #endif

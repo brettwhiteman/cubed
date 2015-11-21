@@ -1,7 +1,7 @@
 #include "camera.h"
 #include <glm/include/gtx/rotate_vector.hpp>
 
-camera::camera(glm::vec3 pos, float fov, float aspect, float z_near, float z_far)
+Camera::Camera(glm::vec3 pos, float fov, float aspect, float z_near, float z_far)
 	: m_pos(std::move(pos)),
 	m_forward(0.0f, 0.0f, 1.0f),
 	m_up(0.0f, 1.0f, 0.0f),
@@ -11,32 +11,32 @@ camera::camera(glm::vec3 pos, float fov, float aspect, float z_near, float z_far
 {
 }
 
-glm::mat4 camera::get_view_projection_matrix()
+glm::mat4 Camera::get_view_projection_matrix()
 {
 	return m_projection * glm::lookAt(m_pos, m_pos + m_forward, m_up);
 }
 
-void camera::update()
+void Camera::update()
 {
 	m_forward = glm::rotate(glm::rotate(glm::vec3(0.0f, 0.0f, 1.0f), m_pitch, glm::vec3(1.0f, 0.0f, 0.0f)), m_yaw, glm::vec3(0.0f, 1.0f, 0.0f));
 }
 
-void camera::move_right_relative(float amount)
+void Camera::move_right_relative(float amount)
 {
 	m_pos += glm::normalize(glm::cross(m_forward, m_up)) * amount;
 }
 
-void camera::move_forward_relative(float amount)
+void Camera::move_forward_relative(float amount)
 {
 	m_pos += m_forward * amount;
 }
 
-void camera::move_up(float amount)
+void Camera::move_up(float amount)
 {
 	m_pos += m_up * amount;
 }
 
-void camera::rotate_pitch(float angle)
+void Camera::rotate_pitch(float angle)
 {
 	m_pitch += angle;
 
@@ -51,7 +51,7 @@ void camera::rotate_pitch(float angle)
 	}
 }
 
-void camera::rotate_yaw(float angle)
+void Camera::rotate_yaw(float angle)
 {
 	m_yaw += angle;
 

@@ -9,18 +9,18 @@
 #include <utility>
 #include "uniform.h"
 
-typedef std::pair<uniform_type, std::string> uniform_declaration;
+typedef std::pair<UniformType, std::string> UniformDeclaration;
 
-class rendering_engine;
+class RenderingEngine;
 
-class shader
+class Shader
 {
 public:
-	shader(const std::string& filename, const std::vector<std::string>& attributes, const std::vector<uniform_declaration>& uniforms);
-	~shader();
+	Shader(const std::string& filename, const std::vector<std::string>& attributes, const std::vector<UniformDeclaration>& uniforms);
+	~Shader();
 
 	void bind() const;
-	void update_uniforms(rendering_engine& re);
+	void update_uniforms(RenderingEngine& re);
 
 private:
 	static void check_shader_error(GLuint shader, GLuint flag, bool is_program, const std::string& error_message);
@@ -36,15 +36,15 @@ private:
 
 	GLuint m_program;
 	GLuint m_shaders[NUM_SHADERS];
-	std::vector<uniform> m_uniforms;
+	std::vector<Uniform> m_uniforms;
 };
 
 #include "cubed_exception.h"
 
-class shader_exception : public cubed_exception
+class ShaderException : public CubedException
 {
 public:
-	shader_exception(std::string message) : cubed_exception(std::move(message)) { }
+	ShaderException(std::string message) : CubedException(std::move(message)) { }
 };
 
 #endif

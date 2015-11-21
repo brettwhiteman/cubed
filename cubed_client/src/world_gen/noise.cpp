@@ -4,7 +4,7 @@
 #define NOISE_MAGIC_Y 1
 #define NOISE_MAGIC_Z 777
 
-namespace world_gen
+namespace WorldGen
 {
 	float noise_2d(int x, int y)
 	{

@@ -6,15 +6,15 @@
 #include "mesh_pti.h"
 #include "blocks.h"
 
-class world;
+class World;
 
-class chunk
+class Chunk
 {
 public:
-	chunk(int x, int y, int z);
+	Chunk(int x, int y, int z);
 
 	void ensure_filled();
-	void ensure_updated(world& world);
+	void ensure_updated(World& world);
 	void set_dirty() { m_up_to_date = false; }
 	void render() const { m_mesh.render(); }
 
@@ -22,8 +22,8 @@ public:
 	auto get_y() const { return m_y; }
 	auto get_z() const { return m_z; }
 
-	block_type get_block_type(int x, int y, int z) const { return m_blocks[get_block_index(x, y, z)]; }
-	void set_block_type(int x, int y, int z, block_type type) { m_blocks[get_block_index(x, y, z)] = type; }
+	BlockType get_block_type(int x, int y, int z) const { return m_blocks[get_block_index(x, y, z)]; }
+	void set_block_type(int x, int y, int z, BlockType type) { m_blocks[get_block_index(x, y, z)] = type; }
 
 	static int get_block_index(int x, int y, int z) { return x * SIZE * SIZE + z * SIZE + y; }
 
@@ -40,12 +40,12 @@ private:
 	int m_x;
 	int m_y;
 	int m_z;
-	std::array<block_type, NUM_BLOCKS> m_blocks;
+	std::array<BlockType, NUM_BLOCKS> m_blocks;
 	bool m_filled;
 	bool m_up_to_date;
-	mesh_pti m_mesh;
+	MeshPTI m_mesh;
 
-	static const blocks blocks;
+	static const Blocks blocks;
 };
 
 #endif

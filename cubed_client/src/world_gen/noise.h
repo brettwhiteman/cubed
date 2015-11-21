@@ -1,7 +1,7 @@
 #ifndef CUBED_WORLD_GEN_NOISE_H
 #define CUBED_WORLD_GEN_NOISE_H
 
-namespace world_gen
+namespace WorldGen
 {
 	float noise_2d(int x, int y);
 	float noise_3d(int x, int y, int z);

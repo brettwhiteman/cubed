@@ -1,10 +1,10 @@
 #include "world.h"
 #include "world_gen/world_gen.h"
 
-world::world(int render_distance)
+World::World(int render_distance)
 	: m_render_distance{render_distance < 1 ? 1 : render_distance}
 {
-	update_loaded_chunks(world_gen::get_spawn_pos());
+	update_loaded_chunks(WorldGen::get_spawn_pos());
 
 	for (auto& x : m_loaded_chunks)
 	{
@@ -29,7 +29,7 @@ world::world(int render_distance)
 	}
 }
 
-void world::update(const glm::vec3& center)
+void World::update(const glm::vec3& center)
 {
 	update_loaded_chunks(center);
 
@@ -45,7 +45,7 @@ void world::update(const glm::vec3& center)
 	}
 }
 
-void world::render()
+void World::render()
 {
 	for (auto& x : m_loaded_chunks)
 	{
@@ -59,15 +59,15 @@ void world::render()
 	}
 }
 
-void world::update_loaded_chunks(const glm::vec3& center)
+void World::update_loaded_chunks(const glm::vec3& center)
 {
-	int x = static_cast<int>((center.x < 0.0f) ? center.x - chunk::SIZE - 1.0f : center.x);
-	int y = static_cast<int>((center.y < 0.0f) ? center.y - chunk::SIZE - 1.0f : center.y);
-	int z = static_cast<int>((center.z < 0.0f) ? center.z - chunk::SIZE - 1.0f : center.z);
+	int x = static_cast<int>((center.x < 0.0f) ? center.x - Chunk::SIZE - 1.0f : center.x);
+	int y = static_cast<int>((center.y < 0.0f) ? center.y - Chunk::SIZE - 1.0f : center.y);
+	int z = static_cast<int>((center.z < 0.0f) ? center.z - Chunk::SIZE - 1.0f : center.z);
 
-	x /= chunk::SIZE;
-	y /= chunk::SIZE;
-	z /= chunk::SIZE;
+	x /= Chunk::SIZE;
+	y /= Chunk::SIZE;
+	z /= Chunk::SIZE;
 
 	int first_x = x - m_render_distance;
 	int first_y = y - m_render_distance;
@@ -147,13 +147,13 @@ void world::update_loaded_chunks(const glm::vec3& center)
 	}
 }
 
-void world::load_chunk(int chunk_x, int chunk_y, int chunk_z)
+void World::load_chunk(int chunk_x, int chunk_y, int chunk_z)
 {
-	auto p1 = m_loaded_chunks.emplace(chunk_x, std::unordered_map<int, std::unordered_map<int, std::unique_ptr<chunk>>>{});
-	auto p2 = p1.first->second.emplace(chunk_y, std::unordered_map<int, std::unique_ptr<chunk>>{});
-	auto p3 = p2.first->second.emplace(chunk_z, std::make_unique<chunk>(chunk_x, chunk_y, chunk_z));
+	auto p1 = m_loaded_chunks.emplace(chunk_x, std::unordered_map<int, std::unordered_map<int, std::unique_ptr<Chunk>>>{});
+	auto p2 = p1.first->second.emplace(chunk_y, std::unordered_map<int, std::unique_ptr<Chunk>>{});
+	auto p3 = p2.first->second.emplace(chunk_z, std::make_unique<Chunk>(chunk_x, chunk_y, chunk_z));
 
-	chunk* chunk;
+	Chunk* chunk;
 
 	chunk = get_chunk(chunk_x - 1, chunk_y, chunk_z);
 	if (chunk)
@@ -192,7 +192,7 @@ void world::load_chunk(int chunk_x, int chunk_y, int chunk_z)
 	}
 }
 
-block_type world::get_block_type(int block_x, int block_y, int block_z)
+BlockType World::get_block_type(int block_x, int block_y, int block_z)
 {
 	auto chunk = get_block_chunk(block_x, block_y, block_z);
 
@@ -201,19 +201,19 @@ block_type world::get_block_type(int block_x, int block_y, int block_z)
 		return BLOCK_AIR;
 	}
 
-	return chunk->get_block_type(static_cast<int>(block_x - chunk->get_x() * chunk::SIZE), static_cast<int>(block_y - chunk->get_y() * chunk::SIZE), static_cast<int>(block_z - chunk->get_z() * chunk::SIZE));
+	return chunk->get_block_type(static_cast<int>(block_x - chunk->get_x() * Chunk::SIZE), static_cast<int>(block_y - chunk->get_y() * Chunk::SIZE), static_cast<int>(block_z - chunk->get_z() * Chunk::SIZE));
 }
 
-chunk* world::get_block_chunk(int block_x, int block_y, int block_z)
+Chunk* World::get_block_chunk(int block_x, int block_y, int block_z)
 {
-	int chunk_x = (block_x < 0 ? block_x - chunk::SIZE + 1 : block_x) / chunk::SIZE;
-	int chunk_y = (block_y < 0 ? block_y - chunk::SIZE + 1 : block_y) / chunk::SIZE;
-	int chunk_z = (block_z < 0 ? block_z - chunk::SIZE + 1 : block_z) / chunk::SIZE;
+	int chunk_x = (block_x < 0 ? block_x - Chunk::SIZE + 1 : block_x) / Chunk::SIZE;
+	int chunk_y = (block_y < 0 ? block_y - Chunk::SIZE + 1 : block_y) / Chunk::SIZE;
+	int chunk_z = (block_z < 0 ? block_z - Chunk::SIZE + 1 : block_z) / Chunk::SIZE;
 
 	return get_chunk(chunk_x, chunk_y, chunk_z);
 }
 
-chunk* world::get_chunk(int chunk_x, int chunk_y, int chunk_z)
+Chunk* World::get_chunk(int chunk_x, int chunk_y, int chunk_z)
 {
 	auto itx = m_loaded_chunks.find(chunk_x);
 

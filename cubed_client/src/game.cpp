@@ -3,11 +3,11 @@
 #include <Windows.h>
 #include "world_gen/world_gen.h"
 
-game::game()
+Game::Game()
 	: m_window{"Cubed", 800, 600, m_input},
 	m_rendering_engine(m_window),
 	m_world{2},
-	m_player{world_gen::get_spawn_pos()}
+	m_player{WorldGen::get_spawn_pos()}
 {
 	m_rendering_engine.load_shader("basic_shader", {"position", "texCoord"}, {{UNIFORMTYPE_MAT4, "transform"}});
 	m_rendering_engine.use_shader("basic_shader");
@@ -17,7 +17,7 @@ game::game()
 
 }
 
-void game::run()
+void Game::run()
 {
 	const auto TARGET_FPS = 60;
 	const auto FRAME_DURATION = std::chrono::nanoseconds{std::nano::den / TARGET_FPS};
@@ -50,16 +50,16 @@ void game::run()
 	}
 }
 
-void game::update()
+void Game::update()
 {
 	m_window.update();
 	m_player.update(m_input);
-	m_world.update(world_gen::get_spawn_pos());// m_player.get_camera().get_position());
+	m_world.update(m_player.get_camera().get_position());
 	m_rendering_engine.set_mat4("transform", m_player.get_camera().get_view_projection_matrix());
 	m_rendering_engine.update_uniforms();
 }
 
-void game::render()
+void Game::render()
 {
 	m_rendering_engine.clear();
 	m_world.render();

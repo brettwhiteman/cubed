@@ -1,19 +1,19 @@
 #include "window.h"
 #include "input_manager.h"
 
-window::window(const std::string& title, int width, int height, input_manager& input)
+Window::Window(const std::string& title, int width, int height, InputManager& input)
 	: m_input(input)
 {
 	if(SDL_Init(SDL_INIT_VIDEO) != 0)
 	{
-		throw window_exception("SDL_Init() failed");
+		throw WindowException("SDL_Init() failed");
 	}
 
 	m_window = SDL_CreateWindow(title.c_str(), SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, width, height, SDL_WINDOW_OPENGL | SDL_WINDOW_RESIZABLE);
 
 	if(!m_window)
 	{
-		throw window_exception("SDL_CreateWindow() failed");
+		throw WindowException("SDL_CreateWindow() failed");
 	}
 
 	SDL_GL_SetAttribute(SDL_GL_RED_SIZE, 8);
@@ -28,20 +28,20 @@ window::window(const std::string& title, int width, int height, input_manager& i
 
 	if(!m_context)
 	{
-		throw window_exception("SDL_GL_CreateContext() failed");
+		throw WindowException("SDL_GL_CreateContext() failed");
 	}
 
 	m_window_size = std::make_pair(width, height);
 }
 
-window::~window()
+Window::~Window()
 {
 	SDL_GL_DeleteContext(m_context);
 	SDL_DestroyWindow(m_window);
 	SDL_Quit();
 }
 
-void window::update()
+void Window::update()
 {
 	SDL_Event e;
 
@@ -54,19 +54,19 @@ void window::update()
 				break;
 
 			case SDL_KEYDOWN:
-				m_input.handle_key_down(static_cast<input_manager::key>(e.key.keysym.scancode));
+				m_input.handle_key_down(static_cast<InputManager::Key>(e.key.keysym.scancode));
 				break;
 
 			case SDL_KEYUP:
-				m_input.handle_key_up(static_cast<input_manager::key>(e.key.keysym.scancode));
+				m_input.handle_key_up(static_cast<InputManager::Key>(e.key.keysym.scancode));
 				break;
 
 			case SDL_MOUSEBUTTONDOWN:
-				m_input.handle_mouse_down(static_cast<input_manager::mouse_button>(e.button.button));
+				m_input.handle_mouse_down(static_cast<InputManager::MouseButton>(e.button.button));
 				break;
 
 			case SDL_MOUSEBUTTONUP:
-				m_input.handle_mouse_up(static_cast<input_manager::mouse_button>(e.button.button));
+				m_input.handle_mouse_up(static_cast<InputManager::MouseButton>(e.button.button));
 				break;
 
 			case SDL_WINDOWEVENT:
@@ -88,7 +88,7 @@ void window::update()
 	}
 }
 
-void window::swap_buffers()
+void Window::swap_buffers()
 {
 	SDL_GL_SwapWindow(m_window);
 }

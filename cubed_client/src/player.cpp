@@ -3,38 +3,38 @@
 #include <utility>
 #include "input_manager.h"
 
-player::player(glm::vec3 position) : m_camera(std::move(position), glm::pi<float>() / 3.0f, 1.333333f, 0.05f, 1000.0f)
+Player::Player(glm::vec3 position) : m_camera(std::move(position), glm::pi<float>() / 3.0f, 1.333333f, 0.05f, 1000.0f)
 {
 }
 
-void player::update(input_manager& input)
+void Player::update(InputManager& input)
 {
-	if (input.is_key_down(input_manager::KEY_A))
+	if (input.is_key_down(InputManager::KEY_A))
 	{
 		m_camera.move_right_relative(-0.5f);
 	}
 
-	if (input.is_key_down(input_manager::KEY_D))
+	if (input.is_key_down(InputManager::KEY_D))
 	{
 		m_camera.move_right_relative(0.5f);
 	}
 
-	if (input.is_key_down(input_manager::KEY_S))
+	if (input.is_key_down(InputManager::KEY_S))
 	{
 		m_camera.move_forward_relative(-0.5f);
 	}
 
-	if (input.is_key_down(input_manager::KEY_W))
+	if (input.is_key_down(InputManager::KEY_W))
 	{
 		m_camera.move_forward_relative(0.5f);
 	}
 
-	if (input.is_key_down(input_manager::KEY_F))
+	if (input.is_key_down(InputManager::KEY_F))
 	{
 		m_camera.move_up(-0.5f);
 	}
 
-	if (input.is_key_down(input_manager::KEY_R))
+	if (input.is_key_down(InputManager::KEY_R))
 	{
 		m_camera.move_up(0.5f);
 	}

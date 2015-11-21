@@ -2,25 +2,25 @@
 #include "../chunk.h"
 #include "noise.h"
 
-namespace world_gen
+namespace WorldGen
 {
 	const float TERRAIN_SPREAD = 16.0f;
 	const int BASE_HEIGHT = 128;
 	const float AMPLITUDE = 16.0f;
 
-	void fill_chunk(chunk& chunk)
+	void fill_chunk(Chunk& chunk)
 	{
-		int start_x = chunk.get_x() * chunk::SIZE;
-		int start_y = chunk.get_y() * chunk::SIZE;
-		int start_z = chunk.get_z() * chunk::SIZE;
+		int start_x = chunk.get_x() * Chunk::SIZE;
+		int start_y = chunk.get_y() * Chunk::SIZE;
+		int start_z = chunk.get_z() * Chunk::SIZE;
 
-		for (int x = start_x; x < start_x + chunk::SIZE; ++x)
+		for (int x = start_x; x < start_x + Chunk::SIZE; ++x)
 		{
-			for (int z = start_z; z < start_z + chunk::SIZE; ++z)
+			for (int z = start_z; z < start_z + Chunk::SIZE; ++z)
 			{
 				int height = get_height(x, z);
 
-				for (int y = start_y; y < start_y + chunk::SIZE; ++y)
+				for (int y = start_y; y < start_y + Chunk::SIZE; ++y)
 				{
 					if (y > height)
 						break;
@@ -51,7 +51,7 @@ namespace world_gen
 		return static_cast<int>(BASE_HEIGHT + height * AMPLITUDE);
 	}
 
-	block_type get_block_type(int x, int y, int z, int height)
+	BlockType get_block_type(int x, int y, int z, int height)
 	{
 		if (y < 40)
 		{

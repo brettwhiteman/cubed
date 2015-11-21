@@ -6,13 +6,13 @@
 #include <vector>
 #include <functional>
 
-class input_manager
+class InputManager
 {
 public:
-	input_manager();
-	input_manager(const input_manager&) = delete;
+	InputManager();
+	InputManager(const InputManager&) = delete;
 
-	enum key
+	enum Key
 	{
 		KEY_A = SDL_SCANCODE_A,
 		KEY_B = SDL_SCANCODE_B,
@@ -43,7 +43,7 @@ public:
 		KEY_ESC = SDL_SCANCODE_ESCAPE
 	};
 
-	enum mouse_button
+	enum MouseButton
 	{
 		MOUSE_LEFT = SDL_BUTTON_LEFT,
 		MOUSE_MIDDLE = SDL_BUTTON_MIDDLE,
@@ -57,17 +57,17 @@ public:
 		MOUSE_RIGHT_INDEX
 	};
 
-	void handle_key_down(key k);
-	void handle_key_up(key k);
-	void handle_mouse_down(mouse_button mb);
-	void handle_mouse_up(mouse_button mb);
+	void handle_key_down(Key k);
+	void handle_key_up(Key k);
+	void handle_mouse_down(MouseButton mb);
+	void handle_mouse_up(MouseButton mb);
 
-	bool is_key_down(key k) { return m_key_states[k]; }
+	bool is_key_down(Key k) { return m_key_states[k]; }
 
-	void add_key_down_handler(key k, std::function<void()> handler) { m_key_down_handlers.emplace_back(k, handler); }
-	void add_key_up_handler(key k, std::function<void()> handler) { m_key_up_handlers.emplace_back(k, handler); }
-	void add_mouse_down_handler(mouse_button mb, std::function<void()> handler) { m_mouse_down_handlers.emplace_back(mb, handler); }
-	void add_mouse_up_handler(mouse_button mb, std::function<void()> handler) { m_mouse_up_handlers.emplace_back(mb, handler); }
+	void add_key_down_handler(Key k, std::function<void()> handler) { m_key_down_handlers.emplace_back(k, handler); }
+	void add_key_up_handler(Key k, std::function<void()> handler) { m_key_up_handlers.emplace_back(k, handler); }
+	void add_mouse_down_handler(MouseButton mb, std::function<void()> handler) { m_mouse_down_handlers.emplace_back(mb, handler); }
+	void add_mouse_up_handler(MouseButton mb, std::function<void()> handler) { m_mouse_up_handlers.emplace_back(mb, handler); }
 
 	void request_quit() { m_quit = true; }
 	auto is_quit_requested() const { return m_quit; }
@@ -76,10 +76,10 @@ private:
 	bool m_quit;
 	std::array<bool, SDL_NUM_SCANCODES> m_key_states;
 	std::array<bool, 3> m_mouse_button_states;
-	std::vector<std::pair<key, std::function<void()>>> m_key_down_handlers;
-	std::vector<std::pair<key, std::function<void()>>> m_key_up_handlers;
-	std::vector<std::pair<mouse_button, std::function<void()>>> m_mouse_down_handlers;
-	std::vector<std::pair<mouse_button, std::function<void()>>> m_mouse_up_handlers;
+	std::vector<std::pair<Key, std::function<void()>>> m_key_down_handlers;
+	std::vector<std::pair<Key, std::function<void()>>> m_key_up_handlers;
+	std::vector<std::pair<MouseButton, std::function<void()>>> m_mouse_down_handlers;
+	std::vector<std::pair<MouseButton, std::function<void()>>> m_mouse_up_handlers;
 };
 
 #endif

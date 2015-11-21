@@ -6,20 +6,20 @@
 #include <glm/include/glm.hpp>
 #include "shader.h"
 
-class texture;
-class window;
+class Texture;
+class Window;
 
-class rendering_engine
+class RenderingEngine
 {
 public:
-	rendering_engine(window& window);
-	rendering_engine(const rendering_engine&) = delete;
-	~rendering_engine();
+	RenderingEngine(Window& window);
+	RenderingEngine(const RenderingEngine&) = delete;
+	~RenderingEngine();
 
 	void update_uniforms();
 	void clear();
 
-	void load_shader(std::string name, const std::vector<std::string>& attributes, const std::vector<uniform_declaration>& uniforms);
+	void load_shader(std::string name, const std::vector<std::string>& attributes, const std::vector<UniformDeclaration>& uniforms);
 	void use_shader(const std::string& name);
 	void load_texture(std::string name);
 	void use_texture(const std::string& name);
@@ -32,8 +32,8 @@ public:
 	const glm::mat4& get_projection_matrix() { return m_projection; }
 
 private:
-	std::unordered_map<std::string, shader*> m_shaders;
-	std::unordered_map<std::string, texture*> m_textures;
+	std::unordered_map<std::string, Shader*> m_shaders;
+	std::unordered_map<std::string, Texture*> m_textures;
 	std::unordered_map<std::string, glm::vec4> m_vec4_vars;
 	std::unordered_map<std::string, glm::mat4> m_mat4_vars;
 	const float PERSPECTIVE_ASPECT;
@@ -44,10 +44,10 @@ private:
 
 #include "cubed_exception.h"
 
-class rendering_engine_exception : public cubed_exception
+class RenderingEngineException : public CubedException
 {
 public:
-	rendering_engine_exception(std::string message) : cubed_exception(std::move(message)) { }
+	RenderingEngineException(std::string message) : CubedException(std::move(message)) { }
 };
 
 #endif

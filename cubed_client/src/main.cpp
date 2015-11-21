@@ -7,7 +7,7 @@ int WINAPI WinMain(HINSTANCE hInst, HINSTANCE hPrevInstance, char* cmdLine, int 
 {
 	try
 	{
-		game g;
+		Game g;
 		g.run();
 	}
 	catch (const std::exception& e)
