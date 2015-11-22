@@ -22,7 +22,7 @@ public:
 	auto get_y() const { return m_y; }
 	auto get_z() const { return m_z; }
 
-	BlockType get_block_type(int x, int y, int z) const { return m_blocks[get_block_index(x, y, z)]; }
+	auto get_block_type(int x, int y, int z) const { return m_blocks[get_block_index(x, y, z)]; }
 	void set_block_type(int x, int y, int z, BlockType type) { m_blocks[get_block_index(x, y, z)] = type; }
 
 	static int get_block_index(int x, int y, int z) { return x * SIZE * SIZE + z * SIZE + y; }
