@@ -122,7 +122,9 @@ void World::update_loaded_chunks(const glm::vec3& center)
 					it_z = it_y->second.erase(it_z);
 				}
 				else
+				{
 					++it_z;
+				}
 			}
 
 			if (del_x)
