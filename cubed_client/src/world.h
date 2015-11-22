@@ -3,6 +3,7 @@
 
 #include <unordered_map>
 #include <memory>
+#include <functional>
 #include <glm/include/glm.hpp>
 #include "block_type.h"
 #include "chunk.h"
@@ -22,6 +23,7 @@ private:
 	void load_chunk(int chunk_x, int chunk_y, int chunk_z);
 	Chunk* get_block_chunk(int block_x, int block_y, int block_z);
 	Chunk* get_chunk(int chunk_x, int chunk_y, int chunk_z);
+	void for_each_chunk(std::function<bool(Chunk*, int, int, int)> callback, bool filter_null = true);
 
 	int m_render_distance;
 	std::unordered_map<int, std::unordered_map<int, std::unordered_map<int, std::unique_ptr<Chunk>>>> m_loaded_chunks;

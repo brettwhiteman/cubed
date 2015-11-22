@@ -6,27 +6,17 @@ World::World(int render_distance)
 {
 	update_loaded_chunks(WorldGen::get_spawn_pos());
 
-	for (auto& x : m_loaded_chunks)
+	for_each_chunk([](Chunk* chunk, int x, int y, int z)
 	{
-		for (auto& y : x.second)
-		{
-			for (auto& z : y.second)
-			{
-				z.second->ensure_filled();
-			}
-		}
-	}
+		chunk->ensure_filled();
+		return true;
+	});
 
-	for (auto& x : m_loaded_chunks)
+	for_each_chunk([this](Chunk* chunk, int x, int y, int z)
 	{
-		for (auto& y : x.second)
-		{
-			for (auto& z : y.second)
-			{
-				z.second->update(*this);
-			}
-		}
-	}
+		chunk->update(*this);
+		return true;
+	});
 }
 
 void World::update(const glm::vec3& center)
@@ -35,33 +25,19 @@ void World::update(const glm::vec3& center)
 
 	int limit = CHUNK_UPDATES_PER_FRAME;
 
-	for (auto& x : m_loaded_chunks)
+	for_each_chunk([this, &limit](Chunk* chunk, int x, int y, int z)
 	{
-		for (auto& y : x.second)
-		{
-			for (auto& z : y.second)
-			{
-				if (z.second->update(*this) && --limit <= 0)
-				{
-					return;
-				}
-			}
-		}
-	}
+		return !chunk->update(*this) || --limit > 0;
+	});
 }
 
 void World::render()
 {
-	for (auto& x : m_loaded_chunks)
+	for_each_chunk([](Chunk* chunk, int x, int y, int z)
 	{
-		for (auto& y : x.second)
-		{
-			for (auto& z : y.second)
-			{
-				z.second->render();
-			}
-		}
-	}
+		chunk->render();
+		return true;
+	});
 }
 
 void World::update_loaded_chunks(const glm::vec3& center)
@@ -244,4 +220,26 @@ Chunk* World::get_chunk(int chunk_x, int chunk_y, int chunk_z)
 	}
 
 	return itz->second.get();
+}
+
+void World::for_each_chunk(std::function<bool(Chunk*, int, int, int)> callback, bool filter_null)
+{
+	for (auto& x : m_loaded_chunks)
+	{
+		for (auto& y : x.second)
+		{
+			for (auto& z : y.second)
+			{
+				if (!z.second && filter_null)
+				{
+					continue;
+				}
+
+				if (!callback(z.second.get(), x.first, y.first, z.first))
+				{
+					return;
+				}
+			}
+		}
+	}
 }
