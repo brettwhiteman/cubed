@@ -12,16 +12,11 @@ Chunk::Chunk(int x, int y, int z)
 	m_up_to_date{false},
 	m_mesh{false}
 {
-	m_blocks.fill(BLOCK_AIR);
 }
 
-void Chunk::ensure_filled()
+void Chunk::fill()
 {
-	if (m_filled)
-	{
-		return;
-	}
-
+	m_blocks.fill(BLOCK_AIR);
 	WorldGen::fill_chunk(*this);
 	m_filled = true;
 }
@@ -32,8 +27,6 @@ bool Chunk::update(World& world)
 	{
 		return false;
 	}
-
-	ensure_filled();
 
 	auto vertices = std::array<VertexPT, NUM_BLOCKS * VERTICES_PER_BLOCK>{};
 	auto indices = std::array<unsigned short, NUM_BLOCKS * INDICES_PER_BLOCK>{};

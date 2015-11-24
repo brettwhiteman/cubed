@@ -6,12 +6,6 @@ World::World(int render_distance)
 {
 	update_loaded_chunks(WorldGen::get_spawn_pos());
 
-	for_each_chunk([](Chunk* chunk, int x, int y, int z)
-	{
-		chunk->ensure_filled();
-		return true;
-	});
-
 	for_each_chunk([this](Chunk* chunk, int x, int y, int z)
 	{
 		chunk->update(*this);
@@ -22,6 +16,12 @@ World::World(int render_distance)
 void World::update(const glm::vec3& center)
 {
 	update_loaded_chunks(center);
+
+	for_each_chunk([](Chunk* chunk, int x, int y, int z)
+	{
+		chunk->fill();
+		return true;
+	}, true);
 
 	int limit = CHUNK_UPDATES_PER_FRAME;
 
@@ -73,7 +73,7 @@ void World::update_loaded_chunks(const glm::vec3& center)
 	bool del_x = false;
 	bool del_y = false;
 
-	for (auto it_x = m_loaded_chunks.begin(); it_x != m_loaded_chunks.end();)
+	for (auto it_x = m_chunks.begin(); it_x != m_chunks.end();)
 	{
 		for (auto it_y = it_x->second.begin(); it_y != it_x->second.end();)
 		{
@@ -120,7 +120,7 @@ void World::update_loaded_chunks(const glm::vec3& center)
 
 		if (del_x)
 		{
-			it_x = m_loaded_chunks.erase(it_x);
+			it_x = m_chunks.erase(it_x);
 			del_x = false;
 		}
 		else
@@ -132,7 +132,7 @@ void World::update_loaded_chunks(const glm::vec3& center)
 
 void World::load_chunk(int chunk_x, int chunk_y, int chunk_z)
 {
-	auto p1 = m_loaded_chunks.emplace(chunk_x, std::unordered_map<int, std::unordered_map<int, std::unique_ptr<Chunk>>>{});
+	auto p1 = m_chunks.emplace(chunk_x, std::unordered_map<int, std::unordered_map<int, std::unique_ptr<Chunk>>>{});
 	auto p2 = p1.first->second.emplace(chunk_y, std::unordered_map<int, std::unique_ptr<Chunk>>{});
 	auto p3 = p2.first->second.emplace(chunk_z, std::make_unique<Chunk>(chunk_x, chunk_y, chunk_z));
 
@@ -198,9 +198,9 @@ Chunk* World::get_block_chunk(int block_x, int block_y, int block_z)
 
 Chunk* World::get_chunk(int chunk_x, int chunk_y, int chunk_z)
 {
-	auto itx = m_loaded_chunks.find(chunk_x);
+	auto itx = m_chunks.find(chunk_x);
 
-	if (itx == m_loaded_chunks.end())
+	if (itx == m_chunks.end())
 	{
 		return nullptr;
 	}
@@ -222,22 +222,27 @@ Chunk* World::get_chunk(int chunk_x, int chunk_y, int chunk_z)
 	return itz->second.get();
 }
 
-void World::for_each_chunk(std::function<bool(Chunk*, int, int, int)> callback, bool filter_null)
+void World::for_each_chunk(std::function<bool(Chunk*, int, int, int)> callback, bool empty_only)
 {
-	for (auto& x : m_loaded_chunks)
+	for (auto& x : m_chunks)
 	{
 		for (auto& y : x.second)
 		{
 			for (auto& z : y.second)
 			{
-				if (!z.second && filter_null)
+				if (z.second->empty())
 				{
-					continue;
+					if (empty_only && !callback(z.second.get(), x.first, y.first, z.first))
+					{
+						return;
+					}
 				}
-
-				if (!callback(z.second.get(), x.first, y.first, z.first))
+				else
 				{
-					return;
+					if (!empty_only && !callback(z.second.get(), x.first, y.first, z.first))
+					{
+						return;
+					}
 				}
 			}
 		}

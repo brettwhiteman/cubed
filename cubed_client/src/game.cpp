@@ -14,12 +14,16 @@ Game::Game()
 	
 	m_rendering_engine.load_texture("blocks.png");
 	m_rendering_engine.use_texture("blocks.png");
-
 }
 
 void Game::run()
 {
-	const auto TARGET_FPS = 60;
+	#ifdef _DEBUG
+		const auto TARGET_FPS = 10;
+	#else
+		const auto TARGET_FPS = 60;
+	#endif
+
 	const auto FRAME_DURATION = std::chrono::nanoseconds{std::nano::den / TARGET_FPS};
 	std::chrono::nanoseconds unprocessed_time{0};
 	auto last_update_time = std::chrono::steady_clock::now() - FRAME_DURATION;

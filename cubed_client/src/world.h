@@ -23,10 +23,10 @@ private:
 	void load_chunk(int chunk_x, int chunk_y, int chunk_z);
 	Chunk* get_block_chunk(int block_x, int block_y, int block_z);
 	Chunk* get_chunk(int chunk_x, int chunk_y, int chunk_z);
-	void for_each_chunk(std::function<bool(Chunk*, int, int, int)> callback, bool filter_null = true);
+	void for_each_chunk(std::function<bool(Chunk*, int, int, int)> callback, bool empty_only = false);
 
 	int m_render_distance;
-	std::unordered_map<int, std::unordered_map<int, std::unordered_map<int, std::unique_ptr<Chunk>>>> m_loaded_chunks;
+	std::unordered_map<int, std::unordered_map<int, std::unordered_map<int, std::unique_ptr<Chunk>>>> m_chunks;
 
 	static const int CHUNK_UPDATES_PER_FRAME = 1;
 };
