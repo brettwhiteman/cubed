@@ -1,7 +1,7 @@
 #include "mesh_pti.h"
 
-MeshPTI::MeshPTI(bool dynamic)
-	: m_dynamic(dynamic),
+MeshPTI::MeshPTI(bool dynamic) :
+	m_dynamic(dynamic),
 	m_num_vertices(0),
 	m_num_indices(0),
 	m_vbo(false),
@@ -38,7 +38,7 @@ void MeshPTI::render() const
 	}
 }
 
-void MeshPTI::set_data(VertexPT vertices[], unsigned short indices[], GLsizei numVertices, GLsizei numIndices)
+void MeshPTI::set_data(const VertexPT vertices[], const unsigned short indices[], GLsizei numVertices, GLsizei numIndices)
 {
 	if(!m_vao)
 	{

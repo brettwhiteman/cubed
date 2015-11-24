@@ -1,8 +1,8 @@
 #include "uniform.h"
 #include "rendering_engine.h"
 
-Uniform::Uniform(UniformType type, std::string name, GLint location)
-	: m_type(type),
+Uniform::Uniform(UniformType type, std::string name, GLint location) :
+	m_type(type),
 	m_name(std::move(name)),
 	m_location(location)
 {

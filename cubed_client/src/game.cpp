@@ -3,8 +3,8 @@
 #include <Windows.h>
 #include "world_gen/world_gen.h"
 
-Game::Game()
-	: m_window{"Cubed", 800, 600, m_input},
+Game::Game() :
+	m_window{"Cubed", 800, 600, m_input},
 	m_rendering_engine(m_window),
 	m_world{2},
 	m_player{WorldGen::get_spawn_pos()}

@@ -1,34 +1,66 @@
 #include "world.h"
+#include "chunk.h"
 #include "world_gen/world_gen.h"
+#include "world_constants.h"
 
-World::World(int render_distance)
-	: m_render_distance{render_distance < 1 ? 1 : render_distance}
+const Blocks World::blocks;
+
+World::World(int render_distance) :
+	m_render_distance{render_distance < 1 ? 1 : render_distance}
 {
 	update_loaded_chunks(WorldGen::get_spawn_pos());
-
-	for_each_chunk([this](Chunk* chunk, int x, int y, int z)
-	{
-		chunk->update(*this);
-		return true;
-	});
 }
 
 void World::update(const glm::vec3& center)
 {
 	update_loaded_chunks(center);
 
-	for_each_chunk([](Chunk* chunk, int x, int y, int z)
+	for_each_chunk([this](Chunk* chunk, int x, int y, int z)
 	{
-		chunk->fill();
+		if (!chunk->update_queued() && (!chunk->filled() || !chunk->up_to_date()))
+		{
+			m_chunk_updates.emplace_back(new ChunkUpdate(chunk->get_blocks(), x, y, z, !chunk->filled()));
+			chunk->set_update_queued(true);
+		}
+
 		return true;
-	}, true);
+	}, false);
 
-	int limit = CHUNK_UPDATES_PER_FRAME;
-
-	for_each_chunk([this, &limit](Chunk* chunk, int x, int y, int z)
+	// To go in separate thread with locks on the vector
+	int limit = 3;
+	for (auto& cu : m_chunk_updates)
 	{
-		return !chunk->update(*this) || --limit > 0;
-	});
+		cu->run();
+
+		if (--limit <= 0)
+		{
+			break;
+		}
+	}
+
+	for (auto it = m_chunk_updates.begin(); it != m_chunk_updates.end();)
+	{
+		auto cu = it->get();
+
+		if (cu->finished())
+		{
+			auto chunk = get_chunk(cu->get_x(), cu->get_y(), cu->get_z());
+
+			if (chunk)
+			{
+				chunk->update_mesh(cu->get_vertices(), cu->get_indices(), cu->get_num_vertices(), cu->get_num_indices());
+				chunk->set_filled(true);
+				chunk->set_up_to_date(true);
+				chunk->set_update_queued(false);
+			}
+
+			it = m_chunk_updates.erase(it);
+		}
+		else
+		{
+			++it;
+		}
+	}
 }
 
 void World::render()
@@ -42,13 +74,13 @@ void World::render()
 
 void World::update_loaded_chunks(const glm::vec3& center)
 {
-	int x = static_cast<int>((center.x < 0.0f) ? center.x - Chunk::SIZE - 1.0f : center.x);
-	int y = static_cast<int>((center.y < 0.0f) ? center.y - Chunk::SIZE - 1.0f : center.y);
-	int z = static_cast<int>((center.z < 0.0f) ? center.z - Chunk::SIZE - 1.0f : center.z);
+	int x = static_cast<int>((center.x < 0.0f) ? center.x - WorldConstants::CHUNK_SIZE - 1.0f : center.x);
+	int y = static_cast<int>((center.y < 0.0f) ? center.y - WorldConstants::CHUNK_SIZE - 1.0f : center.y);
+	int z = static_cast<int>((center.z < 0.0f) ? center.z - WorldConstants::CHUNK_SIZE - 1.0f : center.z);
 
-	x /= Chunk::SIZE;
-	y /= Chunk::SIZE;
-	z /= Chunk::SIZE;
+	x /= WorldConstants::CHUNK_SIZE;
+	y /= WorldConstants::CHUNK_SIZE;
+	z /= WorldConstants::CHUNK_SIZE;
 
 	int first_x = x - m_render_distance;
 	int first_y = y - m_render_distance;
@@ -141,37 +173,37 @@ void World::load_chunk(int chunk_x, int chunk_y, int chunk_z)
 	chunk = get_chunk(chunk_x - 1, chunk_y, chunk_z);
 	if (chunk)
 	{
-		chunk->set_dirty();
+		chunk->set_up_to_date(false);
 	}
 
 	chunk = get_chunk(chunk_x + 1, chunk_y, chunk_z);
 	if (chunk)
 	{
-		chunk->set_dirty();
+		chunk->set_up_to_date(false);
 	}
 
 	chunk = get_chunk(chunk_x, chunk_y - 1, chunk_z);
 	if (chunk)
 	{
-		chunk->set_dirty();
+		chunk->set_up_to_date(false);
 	}
 
 	chunk = get_chunk(chunk_x, chunk_y + 1, chunk_z);
 	if (chunk)
 	{
-		chunk->set_dirty();
+		chunk->set_up_to_date(false);
 	}
 
 	chunk = get_chunk(chunk_x, chunk_y, chunk_z - 1);
 	if (chunk)
 	{
-		chunk->set_dirty();
+		chunk->set_up_to_date(false);
 	}
 
 	chunk = get_chunk(chunk_x, chunk_y, chunk_z + 1);
 	if (chunk)
 	{
-		chunk->set_dirty();
+		chunk->set_up_to_date(false);
 	}
 }
 
@@ -184,14 +216,14 @@ BlockType World::get_block_type(int block_x, int block_y, int block_z)
 		return BLOCK_AIR;
 	}
 
-	return chunk->get_block_type(static_cast<int>(block_x - chunk->get_x() * Chunk::SIZE), static_cast<int>(block_y - chunk->get_y() * Chunk::SIZE), static_cast<int>(block_z - chunk->get_z() * Chunk::SIZE));
+	return chunk->get_block_type(static_cast<int>(block_x - chunk->get_x() * WorldConstants::CHUNK_SIZE), static_cast<int>(block_y - chunk->get_y() * WorldConstants::CHUNK_SIZE), static_cast<int>(block_z - chunk->get_z() * WorldConstants::CHUNK_SIZE));
 }
 
 Chunk* World::get_block_chunk(int block_x, int block_y, int block_z)
 {
-	int chunk_x = (block_x < 0 ? block_x - Chunk::SIZE + 1 : block_x) / Chunk::SIZE;
-	int chunk_y = (block_y < 0 ? block_y - Chunk::SIZE + 1 : block_y) / Chunk::SIZE;
-	int chunk_z = (block_z < 0 ? block_z - Chunk::SIZE + 1 : block_z) / Chunk::SIZE;
+	int chunk_x = (block_x < 0 ? block_x - WorldConstants::CHUNK_SIZE + 1 : block_x) / WorldConstants::CHUNK_SIZE;
+	int chunk_y = (block_y < 0 ? block_y - WorldConstants::CHUNK_SIZE + 1 : block_y) / WorldConstants::CHUNK_SIZE;
+	int chunk_z = (block_z < 0 ? block_z - WorldConstants::CHUNK_SIZE + 1 : block_z) / WorldConstants::CHUNK_SIZE;
 
 	return get_chunk(chunk_x, chunk_y, chunk_z);
 }
@@ -222,7 +254,7 @@ Chunk* World::get_chunk(int chunk_x, int chunk_y, int chunk_z)
 	return itz->second.get();
 }
 
-void World::for_each_chunk(std::function<bool(Chunk*, int, int, int)> callback, bool empty_only)
+void World::for_each_chunk(std::function<bool(Chunk*, int, int, int)> callback, bool skip_not_filled)
 {
 	for (auto& x : m_chunks)
 	{
@@ -230,19 +262,16 @@ void World::for_each_chunk(std::function<bool(Chunk*, int, int, int)> callback, 
 		{
 			for (auto& z : y.second)
 			{
-				if (z.second->empty())
+				if (z.second->filled())
 				{
-					if (empty_only && !callback(z.second.get(), x.first, y.first, z.first))
+					if (!callback(z.second.get(), x.first, y.first, z.first))
 					{
 						return;
 					}
 				}
-				else
+				else if (!skip_not_filled && !callback(z.second.get(), x.first, y.first, z.first))
 				{
-					if (!empty_only && !callback(z.second.get(), x.first, y.first, z.first))
-					{
-						return;
-					}
+					return;
 				}
 			}
 		}

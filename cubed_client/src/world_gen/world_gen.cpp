@@ -1,6 +1,6 @@
 #include "world_gen.h"
-#include "../chunk.h"
 #include "noise.h"
+#include "../world_constants.h"
 
 namespace WorldGen
 {
@@ -8,24 +8,22 @@ namespace WorldGen
 	const int BASE_HEIGHT = 128;
 	const float AMPLITUDE = 16.0f;
 
-	void fill_chunk(Chunk& chunk)
+	void fill_chunk(Chunk::BlockArray& blocks, int start_x, int start_y, int start_z)
 	{
-		int start_x = chunk.get_x() * Chunk::SIZE;
-		int start_y = chunk.get_y() * Chunk::SIZE;
-		int start_z = chunk.get_z() * Chunk::SIZE;
+		blocks.fill(BLOCK_AIR);
 
-		for (int x = start_x; x < start_x + Chunk::SIZE; ++x)
+		for (int x = start_x; x < start_x + WorldConstants::CHUNK_SIZE; ++x)
 		{
-			for (int z = start_z; z < start_z + Chunk::SIZE; ++z)
+			for (int z = start_z; z < start_z + WorldConstants::CHUNK_SIZE; ++z)
 			{
 				int height = get_height(x, z);
 
-				for (int y = start_y; y < start_y + Chunk::SIZE; ++y)
+				for (int y = start_y; y < start_y + WorldConstants::CHUNK_SIZE; ++y)
 				{
 					if (y > height)
 						break;
 
-					chunk.set_block_type(x - start_x, y - start_y, z - start_z, get_block_type(x, y, z, height));
+					blocks[Chunk::get_block_index(x - start_x, y - start_y, z - start_z)] = get_block_type(x, y, z, height);
 				}
 			}
 		}

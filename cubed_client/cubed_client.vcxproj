@@ -23,6 +23,7 @@
     <ClInclude Include="src\block_type.h" />
     <ClInclude Include="src\camera.h" />
     <ClInclude Include="src\chunk.h" />
+    <ClInclude Include="src\chunk_update.h" />
     <ClInclude Include="src\cubed_exception.h" />
     <ClInclude Include="src\game.h" />
     <ClInclude Include="src\input_manager.h" />
@@ -34,13 +35,14 @@
     <ClInclude Include="src\uniform.h" />
     <ClInclude Include="src\window.h" />
     <ClInclude Include="src\world.h" />
+    <ClInclude Include="src\world_constants.h" />
     <ClInclude Include="src\world_gen\noise.h" />
     <ClInclude Include="src\world_gen\world_gen.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\blocks.cpp" />
     <ClCompile Include="src\camera.cpp" />
-    <ClCompile Include="src\chunk.cpp" />
+    <ClCompile Include="src\chunk_update.cpp" />
     <ClCompile Include="src\game.cpp" />
     <ClCompile Include="src\main.cpp" />
     <ClCompile Include="src\input_manager.cpp" />

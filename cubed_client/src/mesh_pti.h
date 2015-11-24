@@ -25,7 +25,7 @@ public:
 
 	void render() const;
 
-	void set_data(VertexPT vertices[], unsigned short indices[], GLsizei num_vertices, GLsizei num_indices);
+	void set_data(const VertexPT vertices[], const unsigned short indices[], GLsizei num_vertices, GLsizei num_indices);
 	void clear_data();
 
 private:

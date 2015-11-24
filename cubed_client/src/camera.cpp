@@ -1,8 +1,8 @@
 #include "camera.h"
 #include <glm/include/gtx/rotate_vector.hpp>
 
-Camera::Camera(glm::vec3 pos, float fov, float aspect, float z_near, float z_far)
-	: m_pos(std::move(pos)),
+Camera::Camera(glm::vec3 pos, float fov, float aspect, float z_near, float z_far) :
+	m_pos(std::move(pos)),
 	m_forward(0.0f, 0.0f, 1.0f),
 	m_up(0.0f, 1.0f, 0.0f),
 	m_yaw(0.0f),

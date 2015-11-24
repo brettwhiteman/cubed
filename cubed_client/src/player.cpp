@@ -3,7 +3,8 @@
 #include <utility>
 #include "input_manager.h"
 
-Player::Player(glm::vec3 position) : m_camera(std::move(position), glm::pi<float>() / 3.0f, 1.333333f, 0.05f, 1000.0f)
+Player::Player(glm::vec3 position) :
+	m_camera(std::move(position), glm::pi<float>() / 3.0f, 1.333333f, 0.05f, 1000.0f)
 {
 }
 

@@ -8,7 +8,9 @@
 class CubedException : public std::exception
 {
 public:
-	CubedException(std::string message) : m_message(std::move(message)) { }
+	CubedException(std::string message) :
+		m_message(std::move(message)) { }
+
 	virtual ~CubedException() { }
 
 	const char* what() const { return m_message.c_str(); }

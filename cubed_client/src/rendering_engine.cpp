@@ -5,8 +5,8 @@
 #include <glm/include/gtc/matrix_transform.hpp>
 #include "window.h"
 
-RenderingEngine::RenderingEngine(Window& window)
-	: PERSPECTIVE_FOV(glm::pi<float>() / 3.0f),
+RenderingEngine::RenderingEngine(Window& window) :
+	PERSPECTIVE_FOV(glm::pi<float>() / 3.0f),
 	PERSPECTIVE_Z_NEAR(0.05f),
 	PERSPECTIVE_Z_FAR(1000.0f)
 {
