@@ -3,9 +3,16 @@
 
 #include <array>
 #include <memory>
+#include <shared_mutex>
 #include "block_type.h"
 #include "mesh_pti.h"
 #include "world_constants.h"
+
+struct BlockData
+{
+	std::array<BlockType, WorldConstants::CHUNK_NUM_BLOCKS> blocks;
+	std::shared_timed_mutex mutex;
+};
 
 class Chunk
 {
@@ -18,7 +25,7 @@ public:
 		m_up_to_date{false},
 		m_update_queued{false},
 		m_mesh{false},
-		m_blocks{std::make_shared<BlockArray>()}
+		m_block_data{std::make_shared<BlockData>()}
 	{
 	}
 
@@ -36,14 +43,21 @@ public:
 	auto get_y() const { return m_y; }
 	auto get_z() const { return m_z; }
 
-	auto get_blocks() { return m_blocks; }
+	auto get_block_data() { return m_block_data; }
 
-	auto get_block_type(int x, int y, int z) const { return m_filled ? (*m_blocks)[get_block_index(x, y, z)] : BLOCK_AIR; }
-	void set_block_type(int x, int y, int z, BlockType type) { (*m_blocks)[get_block_index(x, y, z)] = type; }
+	// A lock is only needed for writing. The chunk update thread does write to the block array
+	// but only before m_filled is set to true. Once m_filled is true only the main thread
+	// will write to the block array.
+	auto get_block_type(int x, int y, int z) const { return m_filled ? m_block_data->blocks[get_block_index(x, y, z)] : BLOCK_AIR; }
+	void set_block_type(int x, int y, int z, BlockType type)
+	{
+		auto block_index = get_block_index(x, y, z);
+
+		std::lock_guard<decltype(m_block_data->mutex)> lock(m_block_data->mutex);
+		m_block_data->blocks[block_index] = type;
+	}
 
 	static int get_block_index(int x, int y, int z) { return x * WorldConstants::CHUNK_SIZE * WorldConstants::CHUNK_SIZE + z * WorldConstants::CHUNK_SIZE + y; }
-
-	typedef std::array<BlockType, WorldConstants::CHUNK_NUM_BLOCKS> BlockArray;
 
 private:
 	int m_x;
@@ -53,7 +67,7 @@ private:
 	bool m_up_to_date;
 	bool m_update_queued;
 	MeshPTI m_mesh;
-	std::shared_ptr<BlockArray> m_blocks;
+	std::shared_ptr<BlockData> m_block_data;
 };
 
 #endif

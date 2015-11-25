@@ -6,9 +6,21 @@
 const Blocks World::blocks;
 
 World::World(int render_distance) :
-	m_render_distance{render_distance < 1 ? 1 : render_distance}
+	m_render_distance{render_distance < 1 ? 1 : render_distance},
+	m_run_chunk_updates{true},
+	m_chunk_update_thread{std::bind(&World::chunk_update_thread, this)}
 {
 	update_loaded_chunks(WorldGen::get_spawn_pos());
+}
+
+World::~World()
+{
+	m_run_chunk_updates = false;
+
+	if (m_chunk_update_thread.joinable())
+	{
+		m_chunk_update_thread.join();
+	}
 }
 
 void World::update(const glm::vec3& center)
@@ -19,24 +31,22 @@ void World::update(const glm::vec3& center)
 	{
 		if (!chunk->update_queued() && (!chunk->filled() || !chunk->up_to_date()))
 		{
-			m_chunk_updates.emplace_back(new ChunkUpdate(chunk->get_blocks(), x, y, z, !chunk->filled()));
+			auto chunk_update = new ChunkUpdate(chunk->get_block_data(), x, y, z, !chunk->filled());
+
+			{
+				std::lock_guard<decltype(m_chunk_updates_mutex)> lock(m_chunk_updates_mutex);
+				m_chunk_updates.emplace_back(chunk_update);
+			}
+
 			chunk->set_update_queued(true);
 		}
 
 		return true;
 	}, false);
 
-	// To go in separate thread with locks on the vector
-	int limit = 3;
-	for (auto& cu : m_chunk_updates)
-	{
-		cu->run();
-
-		if (--limit <= 0)
-		{
-			break;
-		}
-	}
+	// Deferring the lock here as we don't need to lock for reading.
+	// No other threads write to the list.
+	std::unique_lock<decltype(m_chunk_updates_mutex)> lock(m_chunk_updates_mutex, std::defer_lock);
 
 	for (auto it = m_chunk_updates.begin(); it != m_chunk_updates.end();)
 	{
@@ -54,7 +64,12 @@ void World::update(const glm::vec3& center)
 				chunk->set_update_queued(false);
 			}
 
+			lock.lock();
 			it = m_chunk_updates.erase(it);
+			lock.unlock();
+
+			// Only do one of these per frame to prevent stuttering
+			break;
 		}
 		else
 		{
@@ -70,6 +85,53 @@ void World::render()
 		chunk->render();
 		return true;
 	});
+}
+
+BlockType World::get_block_type(int block_x, int block_y, int block_z)
+{
+	auto chunk = get_block_chunk(block_x, block_y, block_z);
+
+	if (!chunk)
+	{
+		return BLOCK_AIR;
+	}
+
+	return chunk->get_block_type(static_cast<int>(block_x - chunk->get_x() * WorldConstants::CHUNK_SIZE), static_cast<int>(block_y - chunk->get_y() * WorldConstants::CHUNK_SIZE), static_cast<int>(block_z - chunk->get_z() * WorldConstants::CHUNK_SIZE));
+}
+
+void World::chunk_update_thread()
+{
+	std::unique_lock<decltype(m_chunk_updates_mutex)> lock(m_chunk_updates_mutex, std::defer_lock);
+
+	while (m_run_chunk_updates)
+	{
+		decltype(m_chunk_updates)::size_type i = 0;
+		decltype(m_chunk_updates)::value_type chunk_update;
+		bool updates = false;
+
+		lock.lock();
+
+		while (i < m_chunk_updates.size() && (chunk_update = m_chunk_updates[i++]))
+		{
+			lock.unlock();
+
+			if (!chunk_update->finished())
+			{
+				chunk_update->run();
+				updates = true;
+			}
+
+			lock.lock();
+		}
+
+		lock.unlock();
+
+		// Avoid hogging CPU
+		if (!updates)
+		{
+			std::this_thread::sleep_for(std::chrono::milliseconds(1));
+		}
+	}
 }
 
 void World::update_loaded_chunks(const glm::vec3& center)
@@ -205,18 +267,6 @@ void World::load_chunk(int chunk_x, int chunk_y, int chunk_z)
 	{
 		chunk->set_up_to_date(false);
 	}
-}
-
-BlockType World::get_block_type(int block_x, int block_y, int block_z)
-{
-	auto chunk = get_block_chunk(block_x, block_y, block_z);
-
-	if (!chunk)
-	{
-		return BLOCK_AIR;
-	}
-
-	return chunk->get_block_type(static_cast<int>(block_x - chunk->get_x() * WorldConstants::CHUNK_SIZE), static_cast<int>(block_y - chunk->get_y() * WorldConstants::CHUNK_SIZE), static_cast<int>(block_z - chunk->get_z() * WorldConstants::CHUNK_SIZE));
 }
 
 Chunk* World::get_block_chunk(int block_x, int block_y, int block_z)

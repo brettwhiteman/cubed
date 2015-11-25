@@ -19,7 +19,7 @@ Game::Game() :
 void Game::run()
 {
 	#ifdef _DEBUG
-		const auto TARGET_FPS = 10;
+		const auto TARGET_FPS = 30;
 	#else
 		const auto TARGET_FPS = 60;
 	#endif

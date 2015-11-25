@@ -3,21 +3,11 @@
 #include "world_constants.h"
 #include "world.h"
 
-ChunkUpdate::ChunkUpdate(std::shared_ptr<Chunk::BlockArray> blocks, int chunk_x, int chunk_y, int chunk_z, bool fill) :
-	m_finished{false},
-	m_blocks{blocks},
-	m_chunk_x{chunk_x},
-	m_chunk_y{chunk_y},
-	m_chunk_z{chunk_z},
-	m_fill(fill)
-{
-}
-
 void ChunkUpdate::run()
 {
 	if (m_fill)
 	{
-		WorldGen::fill_chunk(*m_blocks, m_chunk_x * WorldConstants::CHUNK_SIZE, m_chunk_y * WorldConstants::CHUNK_SIZE, m_chunk_z * WorldConstants::CHUNK_SIZE);
+		WorldGen::fill_chunk(*m_block_data, m_chunk_x * WorldConstants::CHUNK_SIZE, m_chunk_y * WorldConstants::CHUNK_SIZE, m_chunk_z * WorldConstants::CHUNK_SIZE);
 	}
 	
 	int vi = 0;
@@ -224,5 +214,5 @@ BlockType ChunkUpdate::get_block_type(int x, int y, int z) const
 		return BLOCK_AIR;
 	}
 
-	return (*m_blocks)[Chunk::get_block_index(x, y, z)];
+	return m_block_data->blocks[Chunk::get_block_index(x, y, z)];
 }

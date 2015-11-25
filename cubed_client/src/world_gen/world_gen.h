@@ -6,7 +6,7 @@
 
 namespace WorldGen
 {
-	void fill_chunk(Chunk::BlockArray& blocks, int start_x, int start_y, int start_z);
+	void fill_chunk(BlockData& block_data, int start_x, int start_y, int start_z);
 	glm::vec3 get_spawn_pos();
 	int get_height(int x, int z);
 	BlockType get_block_type(int x, int y, int z, int height);

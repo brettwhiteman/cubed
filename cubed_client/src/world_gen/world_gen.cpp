@@ -8,9 +8,13 @@ namespace WorldGen
 	const int BASE_HEIGHT = 128;
 	const float AMPLITUDE = 16.0f;
 
-	void fill_chunk(Chunk::BlockArray& blocks, int start_x, int start_y, int start_z)
+	void fill_chunk(BlockData& block_data, int start_x, int start_y, int start_z)
 	{
-		blocks.fill(BLOCK_AIR);
+		std::shared_lock<decltype(block_data.mutex)> lock(block_data.mutex);
+
+		block_data.blocks.fill(BLOCK_AIR);
+
+		lock.unlock();
 
 		for (int x = start_x; x < start_x + WorldConstants::CHUNK_SIZE; ++x)
 		{
@@ -23,7 +27,12 @@ namespace WorldGen
 					if (y > height)
 						break;
 
-					blocks[Chunk::get_block_index(x - start_x, y - start_y, z - start_z)] = get_block_type(x, y, z, height);
+					auto block_index = Chunk::get_block_index(x - start_x, y - start_y, z - start_z);
+					auto block_type = get_block_type(x, y, z, height);
+
+					lock.lock();
+					block_data.blocks[block_index] = block_type;
+					lock.unlock();
 				}
 			}
 		}
