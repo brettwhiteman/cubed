@@ -74,6 +74,52 @@ void World::update(const glm::vec3& center)
 			if (chunk)
 			{
 				chunk->update_mesh(chunk_update->get_vertices().data(), chunk_update->get_indices().data(), chunk_update->get_num_vertices(), chunk_update->get_num_indices());
+
+				if (!chunk->filled())
+				{
+					// The chunk wasn't previously filled. Set all adjacent chunks
+					// as not up to date since their meshes won't be optimized.
+					// TODO: priority system for chunk updates, deprioritize these optimization updates
+
+					Chunk* adjacent_chunk;
+
+					adjacent_chunk = get_chunk(chunk->get_x() - 1, chunk->get_y(), chunk->get_z());
+					if (adjacent_chunk)
+					{
+						adjacent_chunk->set_up_to_date(false);
+					}
+
+					adjacent_chunk = get_chunk(chunk->get_x() + 1, chunk->get_y(), chunk->get_z());
+					if (adjacent_chunk)
+					{
+						adjacent_chunk->set_up_to_date(false);
+					}
+
+					adjacent_chunk = get_chunk(chunk->get_x(), chunk->get_y() - 1, chunk->get_z());
+					if (adjacent_chunk)
+					{
+						adjacent_chunk->set_up_to_date(false);
+					}
+
+					adjacent_chunk = get_chunk(chunk->get_x(), chunk->get_y() + 1, chunk->get_z());
+					if (adjacent_chunk)
+					{
+						adjacent_chunk->set_up_to_date(false);
+					}
+
+					adjacent_chunk = get_chunk(chunk->get_x(), chunk->get_y(), chunk->get_z() - 1);
+					if (adjacent_chunk)
+					{
+						adjacent_chunk->set_up_to_date(false);
+					}
+
+					adjacent_chunk = get_chunk(chunk->get_x(), chunk->get_y(), chunk->get_z() + 1);
+					if (adjacent_chunk)
+					{
+						adjacent_chunk->set_up_to_date(false);
+					}
+				}
+
 				chunk->set_filled(true);
 				chunk->set_up_to_date(true);
 				chunk->set_update_queued(false);
@@ -239,44 +285,6 @@ void World::load_chunk(int chunk_x, int chunk_y, int chunk_z)
 	auto p1 = m_chunks.emplace(chunk_x, std::unordered_map<int, std::unordered_map<int, std::unique_ptr<Chunk>>>{});
 	auto p2 = p1.first->second.emplace(chunk_y, std::unordered_map<int, std::unique_ptr<Chunk>>{});
 	auto p3 = p2.first->second.emplace(chunk_z, std::make_unique<Chunk>(chunk_x, chunk_y, chunk_z));
-
-	Chunk* chunk;
-
-	chunk = get_chunk(chunk_x - 1, chunk_y, chunk_z);
-	if (chunk)
-	{
-		chunk->set_up_to_date(false);
-	}
-
-	chunk = get_chunk(chunk_x + 1, chunk_y, chunk_z);
-	if (chunk)
-	{
-		chunk->set_up_to_date(false);
-	}
-
-	chunk = get_chunk(chunk_x, chunk_y - 1, chunk_z);
-	if (chunk)
-	{
-		chunk->set_up_to_date(false);
-	}
-
-	chunk = get_chunk(chunk_x, chunk_y + 1, chunk_z);
-	if (chunk)
-	{
-		chunk->set_up_to_date(false);
-	}
-
-	chunk = get_chunk(chunk_x, chunk_y, chunk_z - 1);
-	if (chunk)
-	{
-		chunk->set_up_to_date(false);
-	}
-
-	chunk = get_chunk(chunk_x, chunk_y, chunk_z + 1);
-	if (chunk)
-	{
-		chunk->set_up_to_date(false);
-	}
 }
 
 Chunk* World::get_block_chunk(int block_x, int block_y, int block_z)
