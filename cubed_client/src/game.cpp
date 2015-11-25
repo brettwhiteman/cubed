@@ -6,7 +6,7 @@
 Game::Game() :
 	m_window{"Cubed", 800, 600, m_input},
 	m_rendering_engine(m_window),
-	m_world{2},
+	m_world{4},
 	m_player{WorldGen::get_spawn_pos()}
 {
 	m_rendering_engine.load_shader("basic_shader", {"position", "texCoord"}, {{UNIFORMTYPE_MAT4, "transform"}});

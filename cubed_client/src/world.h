@@ -4,7 +4,7 @@
 #include <unordered_map>
 #include <memory>
 #include <functional>
-#include <vector>
+#include <array>
 #include <mutex>
 #include <thread>
 #include <glm/include/glm.hpp>
@@ -36,7 +36,7 @@ private:
 
 	int m_render_distance;
 	std::unordered_map<int, std::unordered_map<int, std::unordered_map<int, std::unique_ptr<Chunk>>>> m_chunks;
-	std::vector<std::shared_ptr<ChunkUpdate>> m_chunk_updates;
+	std::array<std::unique_ptr<ChunkUpdate>, 10> m_chunk_updates;
 	std::mutex m_chunk_updates_mutex;
 	bool m_run_chunk_updates;
 	std::thread m_chunk_update_thread;

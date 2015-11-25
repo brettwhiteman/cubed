@@ -31,11 +31,29 @@ void World::update(const glm::vec3& center)
 	{
 		if (!chunk->update_queued() && (!chunk->filled() || !chunk->up_to_date()))
 		{
-			auto chunk_update = new ChunkUpdate(chunk->get_block_data(), x, y, z, !chunk->filled());
+			// Find a spare slot in the chunk updates array.
+			// No need for read locking since only this thread writes to it.
+			decltype(m_chunk_updates)::size_type chunk_update_slot = 0;
+
+			for (; chunk_update_slot < m_chunk_updates.size(); ++chunk_update_slot)
+			{
+				if (!m_chunk_updates[chunk_update_slot])
+				{
+					break;
+				}
+			}
+
+			if (chunk_update_slot == m_chunk_updates.size())
+			{
+				// Too many chunk updates queued up at the moment, end the for_each_chunk loop
+				return false;
+			}
+
+			auto chunk_update = std::make_unique<ChunkUpdate>(chunk->get_block_data(), x, y, z, !chunk->filled());
 
 			{
 				std::lock_guard<decltype(m_chunk_updates_mutex)> lock(m_chunk_updates_mutex);
-				m_chunk_updates.emplace_back(chunk_update);
+				m_chunk_updates[chunk_update_slot] = std::move(chunk_update);
 			}
 
 			chunk->set_update_queued(true);
@@ -48,32 +66,26 @@ void World::update(const glm::vec3& center)
 	// No other threads write to the list.
 	std::unique_lock<decltype(m_chunk_updates_mutex)> lock(m_chunk_updates_mutex, std::defer_lock);
 
-	for (auto it = m_chunk_updates.begin(); it != m_chunk_updates.end();)
+	for (auto& chunk_update : m_chunk_updates)
 	{
-		auto cu = it->get();
-
-		if (cu->finished())
+		if (chunk_update && chunk_update->finished())
 		{
-			auto chunk = get_chunk(cu->get_x(), cu->get_y(), cu->get_z());
+			auto chunk = get_chunk(chunk_update->get_x(), chunk_update->get_y(), chunk_update->get_z());
 
 			if (chunk)
 			{
-				chunk->update_mesh(cu->get_vertices(), cu->get_indices(), cu->get_num_vertices(), cu->get_num_indices());
+				chunk->update_mesh(chunk_update->get_vertices(), chunk_update->get_indices(), chunk_update->get_num_vertices(), chunk_update->get_num_indices());
 				chunk->set_filled(true);
 				chunk->set_up_to_date(true);
 				chunk->set_update_queued(false);
 			}
 
 			lock.lock();
-			it = m_chunk_updates.erase(it);
+			chunk_update.reset();
 			lock.unlock();
 
 			// Only do one of these per frame to prevent stuttering
 			break;
-		}
-		else
-		{
-			++it;
 		}
 	}
 }
@@ -106,16 +118,15 @@ void World::chunk_update_thread()
 	while (m_run_chunk_updates)
 	{
 		decltype(m_chunk_updates)::size_type i = 0;
-		decltype(m_chunk_updates)::value_type chunk_update;
 		bool updates = false;
 
 		lock.lock();
 
-		while (i < m_chunk_updates.size() && (chunk_update = m_chunk_updates[i++]))
+		for (auto& chunk_update : m_chunk_updates)
 		{
 			lock.unlock();
 
-			if (!chunk_update->finished())
+			if (chunk_update && !chunk_update->finished())
 			{
 				chunk_update->run();
 				updates = true;
