@@ -3,9 +3,10 @@
 
 #include <memory>
 #include <atomic>
-#include "blocks.h"
 #include "world_constants.h"
 #include "chunk.h"
+
+class World;
 
 class ChunkUpdate
 {
@@ -31,6 +32,8 @@ public:
 	auto get_num_vertices() const { return m_num_vertices; }
 	auto get_num_indices() const { return m_num_indices; }
 
+	static void set_world(World* world) { s_world = world; }
+
 private:
 	BlockType get_block_type(int x, int y, int z) const;
 
@@ -44,6 +47,8 @@ private:
 	std::array<unsigned short, WorldConstants::CHUNK_NUM_BLOCKS * WorldConstants::INDICES_PER_BLOCK> m_indices;
 	GLsizei m_num_vertices;
 	GLsizei m_num_indices;
+
+	static World* s_world;
 };
 
 #endif

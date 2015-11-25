@@ -19,7 +19,7 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="src\blocks.h" />
+    <ClInclude Include="src\block_info.h" />
     <ClInclude Include="src\block_type.h" />
     <ClInclude Include="src\camera.h" />
     <ClInclude Include="src\chunk.h" />
@@ -40,7 +40,7 @@
     <ClInclude Include="src\world_gen\world_gen.h" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="src\blocks.cpp" />
+    <ClCompile Include="src\block_info.cpp" />
     <ClCompile Include="src\camera.cpp" />
     <ClCompile Include="src\chunk_update.cpp" />
     <ClCompile Include="src\game.cpp" />

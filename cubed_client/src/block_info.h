@@ -1,5 +1,5 @@
-#ifndef CUBED_BLOCKS_H
-#define CUBED_BLOCKS_H
+#ifndef CUBED_BLOCK_INFO_H
+#define CUBED_BLOCK_INFO_H
 
 #include <array>
 #include "block_type.h"
@@ -17,10 +17,10 @@ struct BlockTypeProperties
 	std::pair<int, int> tex_top;
 };
 
-class Blocks
+class BlockInfo
 {
 public:
-	Blocks();
+	BlockInfo();
 
 	const auto& get_properties(BlockType type) const { return m_types[type]; }
 

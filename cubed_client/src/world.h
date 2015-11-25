@@ -10,6 +10,7 @@
 #include <glm/include/glm.hpp>
 #include "block_type.h"
 #include "chunk_update.h"
+#include "block_info.h"
 
 class Chunk;
 
@@ -24,7 +25,7 @@ public:
 
 	BlockType get_block_type(int block_x, int block_y, int block_z);
 
-	static const Blocks blocks;
+	auto& get_block_properties(BlockType type) { return m_block_info.get_properties(type); }
 
 private:
 	void chunk_update_thread();
@@ -40,6 +41,7 @@ private:
 	std::mutex m_chunk_updates_mutex;
 	bool m_run_chunk_updates;
 	std::thread m_chunk_update_thread;
+	const BlockInfo m_block_info;
 };
 
 #endif

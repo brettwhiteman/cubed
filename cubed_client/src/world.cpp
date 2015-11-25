@@ -3,14 +3,13 @@
 #include "world_gen/world_gen.h"
 #include "world_constants.h"
 
-const Blocks World::blocks;
-
 World::World(int render_distance) :
 	m_render_distance{render_distance < 1 ? 1 : render_distance},
-	m_run_chunk_updates{true},
-	m_chunk_update_thread{std::bind(&World::chunk_update_thread, this)}
+	m_run_chunk_updates{true}
 {
+	ChunkUpdate::set_world(this);
 	update_loaded_chunks(WorldGen::get_spawn_pos());
+	m_chunk_update_thread = std::thread{std::bind(&World::chunk_update_thread, this)};
 }
 
 World::~World()

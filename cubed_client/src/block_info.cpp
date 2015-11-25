@@ -1,6 +1,6 @@
-#include "blocks.h"
+#include "block_info.h"
 
-Blocks::Blocks()
+BlockInfo::BlockInfo()
 {
 	set_type(BLOCK_AIR);
 	set_type(BLOCK_GRASS, true, 1500, {1, 0}, {1, 0}, {1, 0}, {1, 0}, {2, 0}, {0, 0});
