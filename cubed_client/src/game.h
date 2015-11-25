@@ -18,7 +18,7 @@ private:
 	void update();
 	void render();
 
-	InputManager m_input;
+	InputManager m_input_manager;
 	Window m_window;
 	RenderingEngine m_rendering_engine;
 	World m_world;

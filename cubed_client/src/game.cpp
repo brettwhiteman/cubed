@@ -4,10 +4,10 @@
 #include "world_gen/world_gen.h"
 
 Game::Game() :
-	m_window{"Cubed", 800, 600, m_input},
+	m_window{"Cubed", 800, 600, m_input_manager},
 	m_rendering_engine(m_window),
-	m_world{4},
-	m_player{WorldGen::get_spawn_pos()}
+	m_world{3},
+	m_player{m_input_manager, WorldGen::get_spawn_pos()}
 {
 	m_rendering_engine.load_shader("basic_shader", {"position", "texCoord"}, {{UNIFORMTYPE_MAT4, "transform"}});
 	m_rendering_engine.use_shader("basic_shader");
@@ -28,7 +28,7 @@ void Game::run()
 	std::chrono::nanoseconds unprocessed_time{0};
 	auto last_update_time = std::chrono::steady_clock::now() - FRAME_DURATION;
 
-	while (!m_input.is_quit_requested())
+	while (!m_input_manager.is_quit_requested())
 	{
 		auto now = std::chrono::steady_clock::now();
 		unprocessed_time += now - last_update_time;
@@ -57,7 +57,7 @@ void Game::run()
 void Game::update()
 {
 	m_window.update();
-	m_player.update(m_input);
+	m_player.update();
 	m_world.update(m_player.get_camera().get_position());
 	m_rendering_engine.set_mat4("transform", m_rendering_engine.get_projection_matrix() * m_player.get_camera().get_matrix());
 	m_rendering_engine.update_uniforms();

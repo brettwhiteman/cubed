@@ -26,8 +26,8 @@ public:
 	auto get_x() const { return m_chunk_x; }
 	auto get_y() const { return m_chunk_y; }
 	auto get_z() const { return m_chunk_z; }
-	const auto& get_vertices() const { return m_vertices.data(); }
-	const auto& get_indices() const { return m_indices.data(); }
+	const auto& get_vertices() const { return m_vertices; }
+	const auto& get_indices() const { return m_indices; }
 	auto get_num_vertices() const { return m_num_vertices; }
 	auto get_num_indices() const { return m_num_indices; }
 

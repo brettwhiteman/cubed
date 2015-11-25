@@ -74,7 +74,7 @@ void World::update(const glm::vec3& center)
 
 			if (chunk)
 			{
-				chunk->update_mesh(chunk_update->get_vertices(), chunk_update->get_indices(), chunk_update->get_num_vertices(), chunk_update->get_num_indices());
+				chunk->update_mesh(chunk_update->get_vertices().data(), chunk_update->get_indices().data(), chunk_update->get_num_vertices(), chunk_update->get_num_indices());
 				chunk->set_filled(true);
 				chunk->set_up_to_date(true);
 				chunk->set_update_queued(false);

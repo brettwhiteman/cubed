@@ -45,38 +45,38 @@ Window::~Window()
 
 void Window::update()
 {
-	SDL_Event e;
+	SDL_Event event;
 
-	while(SDL_PollEvent(&e))
+	while(SDL_PollEvent(&event))
 	{
-		switch(e.type)
+		switch(event.type)
 		{
 			case SDL_QUIT:
 				m_input.request_quit();
 				break;
 
 			case SDL_KEYDOWN:
-				m_input.handle_key_down(static_cast<InputManager::Key>(e.key.keysym.scancode));
+				m_input.handle_key_down(static_cast<InputManager::Key>(event.key.keysym.scancode));
 				break;
 
 			case SDL_KEYUP:
-				m_input.handle_key_up(static_cast<InputManager::Key>(e.key.keysym.scancode));
+				m_input.handle_key_up(static_cast<InputManager::Key>(event.key.keysym.scancode));
 				break;
 
 			case SDL_MOUSEBUTTONDOWN:
-				m_input.handle_mouse_down(static_cast<InputManager::MouseButton>(e.button.button));
+				m_input.handle_mouse_down(static_cast<InputManager::MouseButton>(event.button.button));
 				break;
 
 			case SDL_MOUSEBUTTONUP:
-				m_input.handle_mouse_up(static_cast<InputManager::MouseButton>(e.button.button));
+				m_input.handle_mouse_up(static_cast<InputManager::MouseButton>(event.button.button));
 				break;
 
 			case SDL_WINDOWEVENT:
-				switch (e.window.event)
+				switch (event.window.event)
 				{
 					case SDL_WINDOWEVENT_SIZE_CHANGED:
-						m_window_size = std::make_pair(e.window.data1, e.window.data2);
-						m_window_center = std::make_pair(e.window.data1 / 2, e.window.data2 / 2);
+						m_window_size = std::make_pair(event.window.data1, event.window.data2);
+						m_window_center = std::make_pair(event.window.data1 / 2, event.window.data2 / 2);
 						center_mouse();
 						
 						for (auto& handler : m_window_resize_handlers)

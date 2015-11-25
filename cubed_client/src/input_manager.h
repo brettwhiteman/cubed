@@ -61,15 +61,15 @@ public:
 	void handle_key_up(Key k);
 	void handle_mouse_down(MouseButton mb);
 	void handle_mouse_up(MouseButton mb);
-	void set_mouse_offset(std::pair<int, int> offset) { m_mouse_offset = offset; }
+	void set_mouse_offset(std::pair<int, int> offset);
 
 	bool is_key_down(Key k) { return m_key_states[k]; }
-	std::pair<int, int> get_mouse_offset() { return m_mouse_offset; }
 
 	void add_key_down_handler(Key k, std::function<void()> handler) { m_key_down_handlers.emplace_back(k, handler); }
 	void add_key_up_handler(Key k, std::function<void()> handler) { m_key_up_handlers.emplace_back(k, handler); }
 	void add_mouse_down_handler(MouseButton mb, std::function<void()> handler) { m_mouse_down_handlers.emplace_back(mb, handler); }
 	void add_mouse_up_handler(MouseButton mb, std::function<void()> handler) { m_mouse_up_handlers.emplace_back(mb, handler); }
+	void add_mouse_move_handler(std::function<void(std::pair<int, int>&)> handler) { m_mouse_move_handlers.emplace_back(handler); }
 
 	void request_quit() { m_quit = true; }
 	auto is_quit_requested() const { return m_quit; }
@@ -82,7 +82,7 @@ private:
 	std::vector<std::pair<Key, std::function<void()>>> m_key_up_handlers;
 	std::vector<std::pair<MouseButton, std::function<void()>>> m_mouse_down_handlers;
 	std::vector<std::pair<MouseButton, std::function<void()>>> m_mouse_up_handlers;
-	std::pair<int, int> m_mouse_offset;
+	std::vector<std::function<void(std::pair<int, int>&)>> m_mouse_move_handlers;
 };
 
 #endif

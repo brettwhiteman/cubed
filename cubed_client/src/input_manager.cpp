@@ -1,42 +1,41 @@
 #include "input_manager.h"
 
 InputManager::InputManager() :
-	m_quit(false),
-	m_mouse_offset(0, 0)
+	m_quit(false)
 {
 	m_key_states.fill(false);
 	m_mouse_button_states.fill(false);
 }
 
-void InputManager::handle_key_down(Key k)
+void InputManager::handle_key_down(Key key)
 {
-	m_key_states[k] = true;
+	m_key_states[key] = true;
 
-	for(auto& h : m_key_down_handlers)
+	for(auto& handler : m_key_down_handlers)
 	{
-		if(h.first == k)
+		if(handler.first == key)
 		{
-			h.second();
+			handler.second();
 		}
 	}
 }
 
-void InputManager::handle_key_up(Key k)
+void InputManager::handle_key_up(Key key)
 {
-	m_key_states[k] = false;
+	m_key_states[key] = false;
 
-	for(auto& h : m_key_up_handlers)
+	for(auto& handler : m_key_up_handlers)
 	{
-		if(h.first == k)
+		if(handler.first == key)
 		{
-			h.second();
+			handler.second();
 		}
 	}
 }
 
-void InputManager::handle_mouse_down(MouseButton mb)
+void InputManager::handle_mouse_down(MouseButton mouse_button)
 {
-	switch(mb)
+	switch(mouse_button)
 	{
 		case MOUSE_LEFT:
 			m_mouse_button_states[MOUSE_LEFT_INDEX] = true;
@@ -51,18 +50,18 @@ void InputManager::handle_mouse_down(MouseButton mb)
 			break;
 	}
 
-	for(auto& h : m_mouse_down_handlers)
+	for(auto& handler : m_mouse_down_handlers)
 	{
-		if(h.first == mb)
+		if(handler.first == mouse_button)
 		{
-			h.second();
+			handler.second();
 		}
 	}
 }
 
-void InputManager::handle_mouse_up(MouseButton mb)
+void InputManager::handle_mouse_up(MouseButton mouse_button)
 {
-	switch (mb)
+	switch (mouse_button)
 	{
 	case MOUSE_LEFT:
 		m_mouse_button_states[MOUSE_LEFT_INDEX] = false;
@@ -77,11 +76,19 @@ void InputManager::handle_mouse_up(MouseButton mb)
 		break;
 	}
 
-	for(auto& h : m_mouse_up_handlers)
+	for(auto& handler : m_mouse_up_handlers)
 	{
-		if(h.first == mb)
+		if(handler.first == mouse_button)
 		{
-			h.second();
+			handler.second();
 		}
+	}
+}
+
+void InputManager::set_mouse_offset(std::pair<int, int> mouse_offset)
+{
+	for (auto& handler : m_mouse_move_handlers)
+	{
+		handler(mouse_offset);
 	}
 }

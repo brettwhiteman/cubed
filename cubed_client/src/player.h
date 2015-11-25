@@ -9,14 +9,15 @@ class InputManager;
 class Player
 {
 public:
-	Player(glm::vec3 position);
+	Player(InputManager& input_manager, glm::vec3 position);
 
-	void update(InputManager& input);
+	void update();
 
 	const glm::vec3& get_position() const { return m_camera.get_position(); }
 	Camera& get_camera() { return m_camera; }
 
 private:
+	InputManager& m_input_manager;
 	Camera m_camera;
 };
 
