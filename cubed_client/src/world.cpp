@@ -162,7 +162,6 @@ void World::chunk_update_thread()
 
 	while (m_run_chunk_updates.load(std::memory_order_acquire))
 	{
-		decltype(m_chunk_updates)::size_type i = 0;
 		bool updates = false;
 
 		lock.lock();
