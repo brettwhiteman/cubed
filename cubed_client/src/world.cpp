@@ -52,7 +52,7 @@ void World::update(const glm::vec3& center)
 			auto chunk_update = std::make_unique<ChunkUpdate>(chunk->get_block_data(), x, y, z, !chunk->filled());
 
 			{
-				std::lock_guard<decltype(m_chunk_updates_mutex)> lock(m_chunk_updates_mutex);
+				std::lock_guard<decltype(m_chunk_updates_mutex)> chunk_updates_lock(m_chunk_updates_mutex);
 				m_chunk_updates[chunk_update_slot] = std::move(chunk_update);
 			}
 
@@ -64,7 +64,7 @@ void World::update(const glm::vec3& center)
 
 	// Deferring the lock here as we don't need to lock for reading.
 	// No other threads write to the list.
-	std::unique_lock<decltype(m_chunk_updates_mutex)> lock(m_chunk_updates_mutex, std::defer_lock);
+	std::unique_lock<decltype(m_chunk_updates_mutex)> chunk_updates_lock(m_chunk_updates_mutex, std::defer_lock);
 
 	for (auto& chunk_update : m_chunk_updates)
 	{
@@ -126,9 +126,9 @@ void World::update(const glm::vec3& center)
 				chunk->set_update_queued(false);
 			}
 
-			lock.lock();
+			chunk_updates_lock.lock();
 			chunk_update.reset();
-			lock.unlock();
+			chunk_updates_lock.unlock();
 
 			// Only do one of these per frame to prevent stuttering
 			break;
@@ -159,17 +159,17 @@ BlockType World::get_block_type(int block_x, int block_y, int block_z)
 
 void World::chunk_update_thread()
 {
-	std::unique_lock<decltype(m_chunk_updates_mutex)> lock(m_chunk_updates_mutex, std::defer_lock);
+	std::unique_lock<decltype(m_chunk_updates_mutex)> chunk_updates_lock(m_chunk_updates_mutex, std::defer_lock);
 
 	while (m_run_chunk_updates.load(std::memory_order_acquire))
 	{
 		bool updates = false;
 
-		lock.lock();
+		chunk_updates_lock.lock();
 
 		for (auto& chunk_update : m_chunk_updates)
 		{
-			lock.unlock();
+			chunk_updates_lock.unlock();
 
 			if (chunk_update && !chunk_update->finished())
 			{
@@ -177,10 +177,10 @@ void World::chunk_update_thread()
 				updates = true;
 			}
 
-			lock.lock();
+			chunk_updates_lock.lock();
 		}
 
-		lock.unlock();
+		chunk_updates_lock.unlock();
 
 		// Avoid hogging CPU
 		if (!updates)
