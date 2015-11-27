@@ -23,9 +23,9 @@ public:
 	}
 
 	void run();
-	void set_finished() { m_finished.store(true, std::memory_order_release); }
+	void set_finished() { m_finished = true; }
 
-	auto finished() const { return m_finished.load(std::memory_order_acquire); }
+	bool finished() const { return m_finished; }
 	auto get_x() const { return m_chunk_x; }
 	auto get_y() const { return m_chunk_y; }
 	auto get_z() const { return m_chunk_z; }

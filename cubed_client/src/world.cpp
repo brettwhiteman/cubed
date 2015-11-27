@@ -15,7 +15,7 @@ World::World(int render_distance) :
 
 World::~World()
 {
-	m_run_chunk_updates.store(false, std::memory_order_release);
+	m_run_chunk_updates = false;
 
 	if (m_chunk_update_thread.joinable())
 	{
@@ -161,7 +161,7 @@ void World::chunk_update_thread()
 {
 	std::unique_lock<decltype(m_chunk_updates_mutex)> chunk_updates_lock(m_chunk_updates_mutex, std::defer_lock);
 
-	while (m_run_chunk_updates.load(std::memory_order_acquire))
+	while (m_run_chunk_updates)
 	{
 		bool updates = false;
 
