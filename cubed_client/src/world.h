@@ -1,17 +1,17 @@
 #ifndef CUBED_WORLD_H
 #define CUBED_WORLD_H
 
-#include <unordered_map>
-#include <memory>
-#include <functional>
+#include "block_type.h"
+#include "block_info.h"
+#include "chunk_update.h"
 #include <array>
+#include <atomic>
+#include <functional>
+#include <glm/include/glm.hpp>
+#include <memory>
 #include <mutex>
 #include <thread>
-#include <atomic>
-#include <glm/include/glm.hpp>
-#include "block_type.h"
-#include "chunk_update.h"
-#include "block_info.h"
+#include <unordered_map>
 
 class Chunk;
 

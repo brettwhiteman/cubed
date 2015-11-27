@@ -1,13 +1,12 @@
 #ifndef CUBED_SHADER_H
 #define CUBED_SHADER_H
 
-#include <glm/include/glm.hpp>
+#include "uniform.h"
 #define GLEW_STATIC
 #include <glew/include/glew.h>
+#include <glm/include/glm.hpp>
 #include <string>
 #include <vector>
-#include <utility>
-#include "uniform.h"
 
 typedef std::pair<UniformType, std::string> UniformDeclaration;
 

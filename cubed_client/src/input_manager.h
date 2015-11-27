@@ -1,10 +1,10 @@
 #ifndef CUBED_INPUT_MANAGER_H
 #define CUBED_INPUT_MANAGER_H
 
-#include <sdl2/include/SDL.h>
 #include <array>
-#include <vector>
 #include <functional>
+#include <sdl2/include/SDL.h>
+#include <vector>
 
 class InputManager
 {

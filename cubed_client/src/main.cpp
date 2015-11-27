@@ -1,7 +1,7 @@
-#include <Windows.h>
 #include "game.h"
-#include <exception>
 #include <codecvt>
+#include <exception>
+#include <Windows.h>
 
 int WINAPI WinMain(HINSTANCE hInst, HINSTANCE hPrevInstance, char* cmdLine, int nCmdShow)
 {

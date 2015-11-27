@@ -1,8 +1,8 @@
 #ifndef CUBED_BLOCK_INFO_H
 #define CUBED_BLOCK_INFO_H
 
-#include <array>
 #include "block_type.h"
+#include <array>
 #include <utility>
 
 struct BlockTypeProperties

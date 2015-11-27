@@ -1,10 +1,10 @@
 #ifndef CUBED_RENDERING_ENGINE_H
 #define CUBED_RENDERING_ENGINE_H
 
+#include "shader.h"
+#include <glm/include/glm.hpp>
 #include <string>
 #include <unordered_map>
-#include <glm/include/glm.hpp>
-#include "shader.h"
 
 class Texture;
 class Window;

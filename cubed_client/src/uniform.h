@@ -1,11 +1,10 @@
 #ifndef CUBED_UNIFORM_H
 #define CUBED_UNIFORM_H
 
-#include <string>
-#include <utility>
 #define GLEW_STATIC
 #include <glew/include/glew.h>
 #include <glm/include/glm.hpp>
+#include <string>
 
 enum UniformType
 {

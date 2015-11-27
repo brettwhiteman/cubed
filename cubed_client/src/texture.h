@@ -20,6 +20,7 @@ private:
 };
 
 #include "cubed_exception.h"
+#include <utility>
 
 class TextureException : public CubedException
 {

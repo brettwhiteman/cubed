@@ -1,7 +1,7 @@
+#include "input_manager.h"
 #include "player.h"
 #include <glm/include/gtc/constants.hpp>
 #include <utility>
-#include "input_manager.h"
 
 Player::Player(InputManager& input_manager, glm::vec3 position) :
 	m_input_manager(input_manager),

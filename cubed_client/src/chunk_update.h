@@ -1,10 +1,11 @@
 #ifndef CUBED_CHUNK_UPDATE_H
 #define CUBED_CHUNK_UPDATE_H
 
-#include <memory>
-#include <atomic>
-#include "world_constants.h"
 #include "chunk.h"
+#include "world_constants.h"
+#include <atomic>
+#include <memory>
+#include <utility>
 
 class World;
 

@@ -1,7 +1,7 @@
 #include "game.h"
+#include "world_gen/world_gen.h"
 #include <chrono>
 #include <thread>
-#include "world_gen/world_gen.h"
 
 Game::Game() :
 	m_window{"Cubed", 800, 600, m_input_manager},

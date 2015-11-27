@@ -2,10 +2,10 @@
 #define CUBED_GAME_H
 
 #include "input_manager.h"
-#include "window.h"
-#include "rendering_engine.h"
-#include "world.h"
 #include "player.h"
+#include "rendering_engine.h"
+#include "window.h"
+#include "world.h"
 
 class Game
 {

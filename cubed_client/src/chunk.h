@@ -1,12 +1,12 @@
 #ifndef CUBED_CHUNK_H
 #define CUBED_CHUNK_H
 
-#include <array>
-#include <memory>
-#include <shared_mutex>
 #include "block_type.h"
 #include "mesh_pti.h"
 #include "world_constants.h"
+#include <array>
+#include <memory>
+#include <shared_mutex>
 
 struct BlockData
 {

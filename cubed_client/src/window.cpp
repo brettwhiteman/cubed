@@ -1,5 +1,5 @@
-#include "window.h"
 #include "input_manager.h"
+#include "window.h"
 
 Window::Window(const std::string& title, int width, int height, InputManager& input) :
 	m_input(input)

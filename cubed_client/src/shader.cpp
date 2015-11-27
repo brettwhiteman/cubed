@@ -1,7 +1,7 @@
+#include "rendering_engine.h"
 #include "shader.h"
 #include <fstream>
 #include <iterator>
-#include "rendering_engine.h"
 
 Shader::Shader(const std::string& filename, const std::vector<std::string>& attributes, const std::vector<UniformDeclaration>& uniforms)
 {

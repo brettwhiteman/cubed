@@ -1,7 +1,7 @@
 #include "chunk_update.h"
-#include "world_gen/world_gen.h"
-#include "world_constants.h"
 #include "world.h"
+#include "world_constants.h"
+#include "world_gen/world_gen.h"
 
 World* ChunkUpdate::s_world;
 

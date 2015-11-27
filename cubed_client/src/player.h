@@ -1,8 +1,8 @@
 #ifndef CUBED_PLAYER_H
 #define CUBED_PLAYER_H
 
-#include <glm/include/glm.hpp>
 #include "camera.h"
+#include <glm/include/glm.hpp>
 
 class InputManager;
 

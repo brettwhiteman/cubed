@@ -1,11 +1,11 @@
 #ifndef CUBED_WINDOW_H
 #define CUBED_WINDOW_H
 
-#include <string>
-#include <sdl2/include/SDL.h>
 #include <functional>
-#include <vector>
+#include <sdl2/include/SDL.h>
+#include <string>
 #include <utility>
+#include <vector>
 
 class InputManager;
 

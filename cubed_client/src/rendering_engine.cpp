@@ -1,9 +1,9 @@
 #include "rendering_engine.h"
+#include "texture.h"
+#include "window.h"
 #define GLEW_STATIC
 #include <glew/include/glew.h>
-#include "texture.h"
 #include <glm/include/gtc/matrix_transform.hpp>
-#include "window.h"
 
 RenderingEngine::RenderingEngine(Window& window) :
 	PERSPECTIVE_FOV(glm::pi<float>() / 3.0f),

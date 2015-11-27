@@ -1,5 +1,6 @@
-#include "uniform.h"
 #include "rendering_engine.h"
+#include "uniform.h"
+#include <utility>
 
 Uniform::Uniform(UniformType type, std::string name, GLint location) :
 	m_type(type),
