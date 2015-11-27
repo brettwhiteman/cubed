@@ -7,6 +7,7 @@
 #include <array>
 #include <mutex>
 #include <thread>
+#include <atomic>
 #include <glm/include/glm.hpp>
 #include "block_type.h"
 #include "chunk_update.h"
@@ -39,7 +40,7 @@ private:
 	std::unordered_map<int, std::unordered_map<int, std::unordered_map<int, std::unique_ptr<Chunk>>>> m_chunks;
 	std::array<std::unique_ptr<ChunkUpdate>, 10> m_chunk_updates;
 	std::mutex m_chunk_updates_mutex;
-	bool m_run_chunk_updates;
+	std::atomic_bool m_run_chunk_updates;
 	std::thread m_chunk_update_thread;
 	const BlockInfo m_block_info;
 };
