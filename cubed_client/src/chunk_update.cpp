@@ -205,8 +205,6 @@ void ChunkUpdate::run()
 
 	m_num_vertices = vi;
 	m_num_indices = ii;
-
-	m_finished.store(true);
 }
 
 BlockType ChunkUpdate::get_block_type(int x, int y, int z) const

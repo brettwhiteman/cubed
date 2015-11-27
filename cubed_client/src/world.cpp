@@ -27,7 +27,10 @@ void World::update(const glm::vec3& center)
 {
 	update_loaded_chunks(center);
 
-	for_each_chunk([this](Chunk* chunk, int x, int y, int z)
+	// We need to lock this when writing to elements of m_chunk_updates
+	std::unique_lock<decltype(m_chunk_updates_mutex)> chunk_updates_lock(m_chunk_updates_mutex, std::defer_lock);
+
+	for_each_chunk([this, &chunk_updates_lock](Chunk* chunk, int x, int y, int z)
 	{
 		if (!chunk->update_queued() && (!chunk->filled() || !chunk->up_to_date()))
 		{
@@ -52,8 +55,9 @@ void World::update(const glm::vec3& center)
 			auto chunk_update = std::make_unique<ChunkUpdate>(chunk->get_block_data(), x, y, z, !chunk->filled());
 
 			{
-				std::lock_guard<decltype(m_chunk_updates_mutex)> chunk_updates_lock(m_chunk_updates_mutex);
+				chunk_updates_lock.lock();
 				m_chunk_updates[chunk_update_slot] = std::move(chunk_update);
+				chunk_updates_lock.unlock();
 			}
 
 			chunk->set_update_queued(true);
@@ -61,10 +65,6 @@ void World::update(const glm::vec3& center)
 
 		return true;
 	}, false);
-
-	// Deferring the lock here as we don't need to lock for reading.
-	// No other threads write to the list.
-	std::unique_lock<decltype(m_chunk_updates_mutex)> chunk_updates_lock(m_chunk_updates_mutex, std::defer_lock);
 
 	for (auto& chunk_update : m_chunk_updates)
 	{
@@ -169,15 +169,19 @@ void World::chunk_update_thread()
 
 		for (auto& chunk_update : m_chunk_updates)
 		{
-			chunk_updates_lock.unlock();
-
 			if (chunk_update && !chunk_update->finished())
 			{
-				chunk_update->run();
-				updates = true;
-			}
+				// We can safely unlock this now as the main thread won't
+				// destruct the element until we set the finished flag
+				chunk_updates_lock.unlock();
 
-			chunk_updates_lock.lock();
+				chunk_update->run();
+				chunk_update->set_finished();
+
+				updates = true;
+
+				chunk_updates_lock.lock();
+			}
 		}
 
 		chunk_updates_lock.unlock();
