@@ -6,9 +6,14 @@
 Game::Game() :
 	m_window{"Cubed", 800, 600, m_input_manager},
 	m_rendering_engine(m_window),
-	m_world{3},
 	m_player{m_input_manager, WorldGen::get_spawn_pos()}
 {
+	#ifdef _DEBUG
+		m_world.set_render_distance(2);
+	#else
+		m_world.set_render_distance(5);
+	#endif
+
 	m_rendering_engine.load_shader("basic_shader", {"position", "texCoord"}, {{UNIFORMTYPE_MAT4, "transform"}});
 	m_rendering_engine.use_shader("basic_shader");
 	

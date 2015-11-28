@@ -4,12 +4,21 @@
 #include "world_gen/world_gen.h"
 #include <utility>
 
-World::World(int render_distance) :
-	m_render_distance{render_distance < 1 ? 1 : render_distance},
+World::World() :
+	m_render_distance{1},
 	m_run_chunk_updates{true}
 {
 	ChunkUpdate::set_world(this);
 	update_loaded_chunks(WorldGen::get_spawn_pos());
+
+	// pre-generate world
+	for_each_chunk([](Chunk* chunk, int x, int y, int z)
+	{
+		WorldGen::fill_chunk(*chunk->get_block_data(), x * WorldConstants::CHUNK_SIZE, y * WorldConstants::CHUNK_SIZE, z * WorldConstants::CHUNK_SIZE);
+		chunk->set_filled(true);
+		return true;
+	}, false);
+
 	m_chunk_update_thread = std::thread{std::bind(&World::chunk_update_thread, this)};
 }
 
@@ -34,21 +43,11 @@ void World::update(const glm::vec3& center)
 	{
 		if (!chunk->update_queued() && (!chunk->filled() || !chunk->up_to_date()))
 		{
-			// Find a spare slot in the chunk updates array.
-			// No need for read locking since only this thread writes to it.
-			decltype(m_chunk_updates)::size_type chunk_update_slot = 0;
+			auto chunk_update_slot = get_chunk_update_slot(chunk->low_priority_update());
 
-			for (; chunk_update_slot < m_chunk_updates.size(); ++chunk_update_slot)
+			if (!chunk_update_slot)
 			{
-				if (!m_chunk_updates[chunk_update_slot])
-				{
-					break;
-				}
-			}
-
-			if (chunk_update_slot == m_chunk_updates.size())
-			{
-				// Too many chunk updates queued up at the moment, end the for_each_chunk loop
+				// No free slots. End the for_each_chunk loop.
 				return false;
 			}
 
@@ -56,7 +55,7 @@ void World::update(const glm::vec3& center)
 
 			{
 				chunk_updates_lock.lock();
-				m_chunk_updates[chunk_update_slot] = std::move(chunk_update);
+				*chunk_update_slot = std::move(chunk_update);
 				chunk_updates_lock.unlock();
 			}
 
@@ -66,72 +65,43 @@ void World::update(const glm::vec3& center)
 		return true;
 	}, false);
 
+	// Limit to prevent stuttering
+	int mesh_updates = MAX_CHUNK_MESH_UPDATES_PER_FRAME;
+
 	for (auto& chunk_update : m_chunk_updates)
 	{
 		if (chunk_update && chunk_update->finished())
 		{
-			auto chunk = get_chunk(chunk_update->get_x(), chunk_update->get_y(), chunk_update->get_z());
-
-			if (chunk)
-			{
-				chunk->update_mesh(chunk_update->get_vertices().data(), chunk_update->get_indices().data(), chunk_update->get_num_vertices(), chunk_update->get_num_indices());
-
-				if (!chunk->filled())
-				{
-					// The chunk wasn't previously filled. Set all adjacent chunks
-					// as not up to date since their meshes won't be optimized.
-					// TODO: priority system for chunk updates, deprioritize these optimization updates
-
-					Chunk* adjacent_chunk;
-
-					adjacent_chunk = get_chunk(chunk->get_x() - 1, chunk->get_y(), chunk->get_z());
-					if (adjacent_chunk)
-					{
-						adjacent_chunk->set_up_to_date(false);
-					}
-
-					adjacent_chunk = get_chunk(chunk->get_x() + 1, chunk->get_y(), chunk->get_z());
-					if (adjacent_chunk)
-					{
-						adjacent_chunk->set_up_to_date(false);
-					}
-
-					adjacent_chunk = get_chunk(chunk->get_x(), chunk->get_y() - 1, chunk->get_z());
-					if (adjacent_chunk)
-					{
-						adjacent_chunk->set_up_to_date(false);
-					}
-
-					adjacent_chunk = get_chunk(chunk->get_x(), chunk->get_y() + 1, chunk->get_z());
-					if (adjacent_chunk)
-					{
-						adjacent_chunk->set_up_to_date(false);
-					}
-
-					adjacent_chunk = get_chunk(chunk->get_x(), chunk->get_y(), chunk->get_z() - 1);
-					if (adjacent_chunk)
-					{
-						adjacent_chunk->set_up_to_date(false);
-					}
-
-					adjacent_chunk = get_chunk(chunk->get_x(), chunk->get_y(), chunk->get_z() + 1);
-					if (adjacent_chunk)
-					{
-						adjacent_chunk->set_up_to_date(false);
-					}
-				}
-
-				chunk->set_filled(true);
-				chunk->set_up_to_date(true);
-				chunk->set_update_queued(false);
-			}
+			process_completed_chunk_update(chunk_update);
 
 			chunk_updates_lock.lock();
 			chunk_update.reset();
 			chunk_updates_lock.unlock();
+			
+			if (--mesh_updates <= 0)
+			{
+				break;
+			}
+		}
+	}
 
-			// Only do one of these per frame to prevent stuttering
-			break;
+	if (mesh_updates > 0)
+	{
+		for (auto& chunk_update : m_chunk_updates_low_priority)
+		{
+			if (chunk_update && chunk_update->finished())
+			{
+				process_completed_chunk_update(chunk_update);
+
+				chunk_updates_lock.lock();
+				chunk_update.reset();
+				chunk_updates_lock.unlock();
+
+				if (--mesh_updates <= 0)
+				{
+					break;
+				}
+			}
 		}
 	}
 }
@@ -159,38 +129,19 @@ BlockType World::get_block_type(int block_x, int block_y, int block_z)
 
 void World::chunk_update_thread()
 {
-	std::unique_lock<decltype(m_chunk_updates_mutex)> chunk_updates_lock(m_chunk_updates_mutex, std::defer_lock);
-
 	while (m_run_chunk_updates)
 	{
-		bool updates = false;
+		auto chunk_update = get_next_chunk_update();
 
-		chunk_updates_lock.lock();
-
-		for (auto& chunk_update : m_chunk_updates)
+		if (!chunk_update)
 		{
-			if (chunk_update && !chunk_update->finished())
-			{
-				// We can safely unlock this now as the main thread won't
-				// destruct the element until we set the finished flag
-				chunk_updates_lock.unlock();
-
-				chunk_update->run();
-				chunk_update->set_finished();
-
-				updates = true;
-
-				chunk_updates_lock.lock();
-			}
-		}
-
-		chunk_updates_lock.unlock();
-
-		// Avoid hogging CPU
-		if (!updates)
-		{
+			// Avoid spinning waiting for a chunk update
 			std::this_thread::sleep_for(std::chrono::milliseconds(1));
+			continue;
 		}
+
+		(*chunk_update)->run();
+		(*chunk_update)->set_finished();
 	}
 }
 
@@ -348,4 +299,59 @@ void World::for_each_chunk(std::function<bool(Chunk*, int, int, int)> callback, 
 			}
 		}
 	}
+}
+
+World::ChunkUpdateArray::value_type* World::get_chunk_update_slot(bool low_priority)
+{
+	// No need for read locking since only this thread writes to it.
+	for (auto& chunk_update : (low_priority ? m_chunk_updates_low_priority : m_chunk_updates))
+	{
+		if (!chunk_update)
+		{
+			return &chunk_update;
+		}
+	}
+
+	return nullptr;
+}
+
+World::ChunkUpdateArray::value_type* World::get_next_chunk_update()
+{
+	std::lock_guard<decltype(m_chunk_updates_mutex)> chunk_updates_lock(m_chunk_updates_mutex);
+
+	for (auto& chunk_update : m_chunk_updates)
+	{
+		if (chunk_update && !chunk_update->finished())
+		{
+			return &chunk_update;
+		}
+	}
+
+	for (auto& chunk_update : m_chunk_updates_low_priority)
+	{
+		if (chunk_update && !chunk_update->finished())
+		{
+			return &chunk_update;
+		}
+	}
+
+	return nullptr;
+}
+
+void World::process_completed_chunk_update(World::ChunkUpdateArray::value_type& chunk_update)
+{
+	auto chunk = get_chunk(chunk_update->get_x(), chunk_update->get_y(), chunk_update->get_z());
+
+	if (!chunk)
+	{
+		// Chunk has been unloaded while we were updating it's data
+		return;
+	}
+
+	chunk->update_mesh(chunk_update->get_vertices().data(), chunk_update->get_indices().data(), chunk_update->get_num_vertices(), chunk_update->get_num_indices());
+
+	chunk->set_filled(true);
+	chunk->set_up_to_date(true);
+	chunk->set_update_queued(false);
+	chunk->set_low_priority_update(false);
 }

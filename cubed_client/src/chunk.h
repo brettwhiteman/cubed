@@ -24,6 +24,7 @@ public:
 		m_filled{false},
 		m_up_to_date{false},
 		m_update_queued{false},
+		m_low_priority_update{false},
 		m_mesh{false},
 		m_block_data{std::make_shared<BlockData>()}
 	{
@@ -35,9 +36,11 @@ public:
 	auto filled() const { return m_filled; }
 	auto up_to_date() const { return m_up_to_date; }
 	auto update_queued() const { return m_update_queued; }
+	auto low_priority_update() const { return m_low_priority_update; }
 	void set_filled(bool filled) { m_filled = filled; }
 	void set_up_to_date(bool up_to_date) { m_up_to_date = up_to_date; }
 	void set_update_queued(bool update_queued) { m_update_queued = update_queued; }
+	void set_low_priority_update(bool low_priority_update) { m_low_priority_update = low_priority_update; }
 
 	auto get_x() const { return m_x; }
 	auto get_y() const { return m_y; }
@@ -60,14 +63,15 @@ public:
 	static int get_block_index(int x, int y, int z) { return x * WorldConstants::CHUNK_SIZE * WorldConstants::CHUNK_SIZE + z * WorldConstants::CHUNK_SIZE + y; }
 
 private:
-	int m_x;
-	int m_y;
-	int m_z;
+	const int m_x;
+	const int m_y;
+	const int m_z;
 	bool m_filled;
 	bool m_up_to_date;
 	bool m_update_queued;
+	bool m_low_priority_update;
 	MeshPTI m_mesh;
-	std::shared_ptr<BlockData> m_block_data;
+	const std::shared_ptr<BlockData> m_block_data;
 };
 
 #endif
