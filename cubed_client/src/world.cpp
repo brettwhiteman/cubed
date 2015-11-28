@@ -4,8 +4,8 @@
 #include "world_gen/world_gen.h"
 #include <utility>
 
-World::World() :
-	m_render_distance{1},
+World::World(int render_distance) :
+	m_render_distance{render_distance},
 	m_run_chunk_updates{true}
 {
 	ChunkUpdate::set_world(this);

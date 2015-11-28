@@ -18,7 +18,7 @@ class Chunk;
 class World
 {
 public:
-	World();
+	World(int render_distance);
 	~World();
 
 	void update(const glm::vec3& center);
