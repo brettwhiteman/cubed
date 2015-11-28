@@ -6,12 +6,12 @@
 #include "world_constants.h"
 #include <array>
 #include <memory>
-#include <shared_mutex>
+#include <mutex>
 
 struct BlockData
 {
 	std::array<BlockType, WorldConstants::CHUNK_NUM_BLOCKS> blocks;
-	std::shared_timed_mutex mutex;
+	std::mutex mutex;
 };
 
 class Chunk

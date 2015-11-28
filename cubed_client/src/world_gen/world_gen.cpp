@@ -10,7 +10,7 @@ namespace WorldGen
 
 	void fill_chunk(BlockData& block_data, int start_x, int start_y, int start_z)
 	{
-		std::shared_lock<decltype(block_data.mutex)> lock(block_data.mutex);
+		std::unique_lock<decltype(block_data.mutex)> lock(block_data.mutex);
 
 		block_data.blocks.fill(BLOCK_AIR);
 
