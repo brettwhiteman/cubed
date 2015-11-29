@@ -2,13 +2,6 @@
 #include "uniform.h"
 #include <utility>
 
-Uniform::Uniform(UniformType type, std::string name, GLint location) :
-	m_type(type),
-	m_name(std::move(name)),
-	m_location(location)
-{
-}
-
 void Uniform::update(RenderingEngine& re)
 {
 	switch(m_type)

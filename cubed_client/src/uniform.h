@@ -17,7 +17,12 @@ class RenderingEngine;
 class Uniform
 {
 public:
-	Uniform(UniformType type, std::string name, GLint location);
+	Uniform(UniformType type, std::string name, GLint location) :
+		m_type(type),
+		m_name(std::move(name)),
+		m_location(location)
+	{
+	}
 
 	void update(RenderingEngine& re);
 
