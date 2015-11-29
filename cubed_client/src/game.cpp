@@ -1,6 +1,5 @@
 #include "game.h"
 #include "world_gen/world_gen.h"
-#include <chrono>
 #include <thread>
 
 Game::Game() :
@@ -40,7 +39,7 @@ void Game::run()
 			unprocessed_time -= FRAME_DURATION;
 			needs_render = true;
 
-			update();
+			update(FRAME_DURATION);
 		}
 
 		if (needs_render)
@@ -54,10 +53,10 @@ void Game::run()
 	}
 }
 
-void Game::update()
+void Game::update(std::chrono::nanoseconds delta)
 {
 	m_window.update();
-	m_player.update();
+	m_player.update(delta);
 	m_world.update(m_player.get_camera().get_position());
 	m_rendering_engine.set_mat4("transform", m_rendering_engine.get_projection_matrix() * m_player.get_camera().get_matrix());
 	m_rendering_engine.update_uniforms();

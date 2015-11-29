@@ -3,6 +3,8 @@
 #include <glm/include/gtc/constants.hpp>
 #include <utility>
 
+const float Player::MOVEMENT_SPEED = 4.0f;
+
 Player::Player(InputManager& input_manager, glm::vec3 position) :
 	m_input_manager(input_manager),
 	m_camera(std::move(position), glm::pi<float>() / 3.0f, 1.333333f, 0.05f, 1000.0f)
@@ -14,26 +16,41 @@ Player::Player(InputManager& input_manager, glm::vec3 position) :
 	});
 }
 
-void Player::update()
+void Player::update(std::chrono::nanoseconds delta)
 {
+	auto seconds = std::chrono::duration_cast<std::chrono::duration<float>>(delta);
+
+	glm::vec3 translation;
+	bool movement = false;
+
 	if (m_input_manager.is_key_down(InputManager::KEY_A))
 	{
-		m_camera.move_right_relative(-0.25f);
+		translation -= m_camera.get_right_vector();
+		movement = true;
 	}
 
 	if (m_input_manager.is_key_down(InputManager::KEY_D))
 	{
-		m_camera.move_right_relative(0.25f);
+		translation += m_camera.get_right_vector();
+		movement = true;
 	}
 
 	if (m_input_manager.is_key_down(InputManager::KEY_S))
 	{
-		m_camera.move_forward_relative(-0.25f);
+		translation -= m_camera.get_forward_vector();
+		movement = true;
 	}
 
 	if (m_input_manager.is_key_down(InputManager::KEY_W))
 	{
-		m_camera.move_forward_relative(0.25f);
+		translation += m_camera.get_forward_vector();
+		movement = true;
+	}
+
+	if (movement)
+	{
+		translation = glm::normalize(translation) * MOVEMENT_SPEED * seconds.count();
+		m_camera.translate(translation);
 	}
 
 	m_camera.update();

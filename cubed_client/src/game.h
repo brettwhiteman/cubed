@@ -6,6 +6,7 @@
 #include "rendering_engine.h"
 #include "window.h"
 #include "world.h"
+#include <chrono>
 
 class Game
 {
@@ -15,7 +16,7 @@ public:
 	void run();
 
 private:
-	void update();
+	void update(std::chrono::nanoseconds delta);
 	void render();
 
 	InputManager m_input_manager;
