@@ -123,7 +123,7 @@ void World::chunk_update_thread()
 		if (!chunk_update)
 		{
 			// Avoid spinning waiting for a chunk update
-			std::this_thread::sleep_for(std::chrono::milliseconds(1));
+			std::this_thread::sleep_for(std::chrono::milliseconds{1});
 			continue;
 		}
 
