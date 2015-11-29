@@ -33,7 +33,32 @@ void Game::run()
 	const auto FRAME_DURATION = std::chrono::nanoseconds{std::nano::den / TARGET_FPS};
 	std::chrono::nanoseconds unprocessed_time{0};
 	auto last_update_time = std::chrono::steady_clock::now() - FRAME_DURATION;
+	auto last_frame_time = std::chrono::steady_clock::now() - FRAME_DURATION;
 
+	std::array<std::chrono::nanoseconds, 10> frame_times;
+	decltype(frame_times)::size_type frame_times_index{0};
+
+	frame_times.fill(FRAME_DURATION);
+
+	auto frame_time_average = [&frame_times, &frame_times_index](std::chrono::nanoseconds latest)
+	{
+		frame_times[frame_times_index++] = latest;
+
+		if (frame_times_index >= frame_times.size())
+		{
+			frame_times_index = 0;
+		}
+
+		std::remove_reference<decltype(frame_times)>::type::value_type::rep sum = 0;
+
+		for (auto& frame_time : frame_times)
+		{
+			sum += frame_time.count();
+		}
+
+		return std::chrono::nanoseconds(sum / frame_times.size());
+	};
+	
 	while (!m_input_manager.is_quit_requested())
 	{
 		auto now = std::chrono::steady_clock::now();
@@ -46,7 +71,9 @@ void Game::run()
 			unprocessed_time -= FRAME_DURATION;
 			needs_render = true;
 
-			update(FRAME_DURATION);
+			update(frame_time_average(now - last_frame_time));
+
+			last_frame_time = now;
 		}
 
 		if (needs_render)
