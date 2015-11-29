@@ -24,7 +24,8 @@ public:
 		m_filled{false},
 		m_up_to_date{false},
 		m_update_queued{false},
-		m_low_priority_update{false},
+		m_low_priority_update{true},
+		m_reupdate{false},
 		m_mesh{false},
 		m_block_data{std::make_shared<BlockData>()}
 	{
@@ -37,10 +38,12 @@ public:
 	auto up_to_date() const { return m_up_to_date; }
 	auto update_queued() const { return m_update_queued; }
 	auto low_priority_update() const { return m_low_priority_update; }
+	auto reupdate() { auto old = m_reupdate; m_reupdate = false; return old; }
 	void set_filled(bool filled) { m_filled = filled; }
-	void set_up_to_date(bool up_to_date) { m_up_to_date = up_to_date; }
+	void set_up_to_date(bool up_to_date) { m_up_to_date = up_to_date; if (!up_to_date && update_queued()) m_reupdate = true; }
 	void set_update_queued(bool update_queued) { m_update_queued = update_queued; }
 	void set_low_priority_update(bool low_priority_update) { m_low_priority_update = low_priority_update; }
+	void set_reupdate(bool reupdate) { m_reupdate = reupdate; }
 
 	auto get_x() const { return m_x; }
 	auto get_y() const { return m_y; }
@@ -70,6 +73,7 @@ private:
 	bool m_up_to_date;
 	bool m_update_queued;
 	bool m_low_priority_update;
+	bool m_reupdate;
 	MeshPTI m_mesh;
 	const std::shared_ptr<BlockData> m_block_data;
 };

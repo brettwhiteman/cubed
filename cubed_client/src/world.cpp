@@ -350,8 +350,74 @@ void World::process_completed_chunk_update(World::ChunkUpdateArray::value_type& 
 
 	chunk->update_mesh(chunk_update->get_vertices().data(), chunk_update->get_indices().data(), chunk_update->get_num_vertices(), chunk_update->get_num_indices());
 
-	chunk->set_filled(true);
-	chunk->set_up_to_date(true);
+	// If this chunk has just been filled, we need to update any adjacent chunks that are now
+	// completely surrounded. This is to achieve full obstruction culling for those chunks.
+
+	auto update_chunk_if_surrounded = [this](int chunk_x, int chunk_y, int chunk_z)
+	{
+		Chunk* chunk = get_chunk(chunk_x, chunk_y, chunk_z);
+
+		if (!chunk)
+		{
+			return;
+		}
+
+		Chunk* adjacent = get_chunk(chunk_x - 1, chunk_y, chunk_z);
+		if (adjacent && !adjacent->filled())
+		{
+			return;
+		}
+
+		adjacent = get_chunk(chunk_x + 1, chunk_y, chunk_z);
+		if (adjacent && !adjacent->filled())
+		{
+			return;
+		}
+
+		adjacent = get_chunk(chunk_x, chunk_y - 1, chunk_z);
+		if (adjacent && !adjacent->filled())
+		{
+			return;
+		}
+
+		adjacent = get_chunk(chunk_x, chunk_y + 1, chunk_z);
+		if (adjacent && !adjacent->filled())
+		{
+			return;
+		}
+
+		adjacent = get_chunk(chunk_x, chunk_y, chunk_z - 1);
+		if (adjacent && !adjacent->filled())
+		{
+			return;
+		}
+
+		adjacent = get_chunk(chunk_x, chunk_y, chunk_z + 1);
+		if (adjacent && !adjacent->filled())
+		{
+			return;
+		}
+
+		chunk->set_up_to_date(false);
+	};
+
+	if (!chunk->filled())
+	{
+		chunk->set_filled(true);
+
+		update_chunk_if_surrounded(chunk->get_x() - 1, chunk->get_y(), chunk->get_z());
+		update_chunk_if_surrounded(chunk->get_x() + 1, chunk->get_y(), chunk->get_z());
+		update_chunk_if_surrounded(chunk->get_x(), chunk->get_y() - 1, chunk->get_z());
+		update_chunk_if_surrounded(chunk->get_x(), chunk->get_y() + 1, chunk->get_z());
+		update_chunk_if_surrounded(chunk->get_x(), chunk->get_y(), chunk->get_z() - 1);
+		update_chunk_if_surrounded(chunk->get_x(), chunk->get_y(), chunk->get_z() + 1);
+	}
+
+	if (!chunk->reupdate())
+	{
+		chunk->set_up_to_date(true);
+	}
+	
 	chunk->set_update_queued(false);
 	chunk->set_low_priority_update(false);
 }
