@@ -6,13 +6,20 @@ Game::Game() :
 	m_window{"Cubed", 800, 600, m_input_manager},
 	m_rendering_engine(m_window),
 	m_world{3},
-	m_player{m_input_manager, WorldGen::get_spawn_pos()}
+	m_player{m_input_manager, WorldGen::get_spawn_pos()},
+	m_running{true}
 {
 	m_rendering_engine.load_shader("basic_shader", {"position", "texCoord"}, {{UNIFORMTYPE_MAT4, "transform"}});
 	m_rendering_engine.use_shader("basic_shader");
 	
 	m_rendering_engine.load_texture("blocks.png");
 	m_rendering_engine.use_texture("blocks.png");
+
+	m_input_manager.add_key_up_handler(InputManager::KEY_ESC, [this]()
+	{
+		m_running = !m_running;
+		m_window.center_mouse();
+	});
 }
 
 void Game::run()
@@ -55,8 +62,13 @@ void Game::run()
 
 void Game::update(std::chrono::nanoseconds delta)
 {
-	m_window.update();
-	m_player.update(delta);
+	m_window.update(m_running);
+
+	if (m_running)
+	{
+		m_player.update(delta);
+	}
+
 	m_world.update(m_player.get_camera().get_position());
 	m_rendering_engine.set_mat4("transform", m_rendering_engine.get_projection_matrix() * m_player.get_camera().get_matrix());
 	m_rendering_engine.update_uniforms();

@@ -43,7 +43,7 @@ Window::~Window()
 	SDL_Quit();
 }
 
-void Window::update()
+void Window::update(bool mouse_input)
 {
 	SDL_Event event;
 
@@ -91,13 +91,16 @@ void Window::update()
 		}
 	}
 
-	int x;
-	int y;
+	if (mouse_input)
+	{
+		int x;
+		int y;
 
-	SDL_GetMouseState(&x, &y);
+		SDL_GetMouseState(&x, &y);
 
-	m_input.set_mouse_offset(std::make_pair(x - m_window_center.first, y - m_window_center.second));
-	center_mouse();
+		m_input.set_mouse_offset(std::make_pair(x - m_window_center.first, y - m_window_center.second));
+		center_mouse();
+	}
 }
 
 void Window::swap_buffers()

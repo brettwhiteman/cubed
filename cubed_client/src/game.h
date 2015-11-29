@@ -24,6 +24,7 @@ private:
 	RenderingEngine m_rendering_engine;
 	World m_world;
 	Player m_player;
+	bool m_running;
 };
 
 #endif
