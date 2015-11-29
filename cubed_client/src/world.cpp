@@ -36,10 +36,7 @@ void World::update(const glm::vec3& center)
 {
 	update_loaded_chunks(center);
 
-	// We need to lock this when writing to elements of m_chunk_updates
-	std::unique_lock<decltype(m_chunk_updates_mutex)> chunk_updates_lock(m_chunk_updates_mutex, std::defer_lock);
-
-	for_each_chunk([this, &chunk_updates_lock](Chunk* chunk, int x, int y, int z)
+	for_each_chunk([this](Chunk* chunk, int x, int y, int z)
 	{
 		if (!chunk->update_queued() && (!chunk->filled() || !chunk->up_to_date()))
 		{
@@ -54,9 +51,8 @@ void World::update(const glm::vec3& center)
 			auto chunk_update = std::make_unique<ChunkUpdate>(chunk->get_block_data(), x, y, z, !chunk->filled());
 
 			{
-				chunk_updates_lock.lock();
-				*chunk_update_slot = std::move(chunk_update);
-				chunk_updates_lock.unlock();
+				std::lock_guard<decltype(chunk_update_slot->second)> chunk_update_lock(chunk_update_slot->second);
+				chunk_update_slot->first = std::move(chunk_update);
 			}
 
 			chunk->set_update_queued(true);
@@ -68,34 +64,18 @@ void World::update(const glm::vec3& center)
 	// Limit to prevent stuttering
 	int mesh_updates = MAX_CHUNK_MESH_UPDATES_PER_FRAME;
 
-	for (auto& chunk_update : m_chunk_updates)
+	auto process_completed_chunk_updates = [this, &mesh_updates](ChunkUpdateArray& chunk_updates)
 	{
-		if (chunk_update && chunk_update->finished())
+		for (auto& chunk_update : chunk_updates)
 		{
-			process_completed_chunk_update(chunk_update);
-
-			chunk_updates_lock.lock();
-			chunk_update.reset();
-			chunk_updates_lock.unlock();
-			
-			if (--mesh_updates <= 0)
+			if (chunk_update.first && chunk_update.first->finished())
 			{
-				break;
-			}
-		}
-	}
+				process_completed_chunk_update(chunk_update.first);
 
-	if (mesh_updates > 0)
-	{
-		for (auto& chunk_update : m_chunk_updates_low_priority)
-		{
-			if (chunk_update && chunk_update->finished())
-			{
-				process_completed_chunk_update(chunk_update);
-
-				chunk_updates_lock.lock();
-				chunk_update.reset();
-				chunk_updates_lock.unlock();
+				{
+					std::lock_guard<decltype(chunk_update.second)> chunk_update_lock(chunk_update.second);
+					chunk_update.first.reset();
+				}
 
 				if (--mesh_updates <= 0)
 				{
@@ -103,6 +83,13 @@ void World::update(const glm::vec3& center)
 				}
 			}
 		}
+	};
+
+	process_completed_chunk_updates(m_chunk_updates);
+
+	if (mesh_updates > 0)
+	{
+		process_completed_chunk_updates(m_chunk_updates_low_priority);
 	}
 }
 
@@ -140,8 +127,8 @@ void World::chunk_update_thread()
 			continue;
 		}
 
-		(*chunk_update)->run();
-		(*chunk_update)->set_finished();
+		chunk_update->first->run();
+		chunk_update->first->set_finished();
 	}
 }
 
@@ -304,9 +291,10 @@ void World::for_each_chunk(std::function<bool(Chunk*, int, int, int)> callback, 
 World::ChunkUpdateArray::value_type* World::get_chunk_update_slot(bool low_priority)
 {
 	// No need for read locking since only this thread writes to it.
+
 	for (auto& chunk_update : (low_priority ? m_chunk_updates_low_priority : m_chunk_updates))
 	{
-		if (!chunk_update)
+		if (!chunk_update.first)
 		{
 			return &chunk_update;
 		}
@@ -317,11 +305,11 @@ World::ChunkUpdateArray::value_type* World::get_chunk_update_slot(bool low_prior
 
 World::ChunkUpdateArray::value_type* World::get_next_chunk_update()
 {
-	std::lock_guard<decltype(m_chunk_updates_mutex)> chunk_updates_lock(m_chunk_updates_mutex);
-
 	for (auto& chunk_update : m_chunk_updates)
 	{
-		if (chunk_update && !chunk_update->finished())
+		std::lock_guard<decltype(chunk_update.second)> chunk_update_lock(chunk_update.second);
+
+		if (chunk_update.first && !chunk_update.first->finished())
 		{
 			return &chunk_update;
 		}
@@ -329,7 +317,9 @@ World::ChunkUpdateArray::value_type* World::get_next_chunk_update()
 
 	for (auto& chunk_update : m_chunk_updates_low_priority)
 	{
-		if (chunk_update && !chunk_update->finished())
+		std::lock_guard<decltype(chunk_update.second)> chunk_update_lock(chunk_update.second);
+
+		if (chunk_update.first && !chunk_update.first->finished())
 		{
 			return &chunk_update;
 		}
@@ -338,7 +328,7 @@ World::ChunkUpdateArray::value_type* World::get_next_chunk_update()
 	return nullptr;
 }
 
-void World::process_completed_chunk_update(World::ChunkUpdateArray::value_type& chunk_update)
+void World::process_completed_chunk_update(decltype(ChunkUpdateArray::value_type::first)& chunk_update)
 {
 	auto chunk = get_chunk(chunk_update->get_x(), chunk_update->get_y(), chunk_update->get_z());
 

@@ -30,7 +30,7 @@ public:
 	auto& get_block_properties(BlockType type) { return m_block_info.get_properties(type); }
 
 private:
-	typedef std::array<std::unique_ptr<ChunkUpdate>, 10> ChunkUpdateArray;
+	typedef std::array<std::pair<std::unique_ptr<ChunkUpdate>, std::mutex>, 10> ChunkUpdateArray;
 
 	void chunk_update_thread();
 	void update_loaded_chunks(const glm::vec3& center);
@@ -40,13 +40,12 @@ private:
 	void for_each_chunk(std::function<bool(Chunk*, int, int, int)> callback, bool skip_not_filled = true);
 	ChunkUpdateArray::value_type* get_chunk_update_slot(bool low_priority);
 	ChunkUpdateArray::value_type* get_next_chunk_update();
-	void process_completed_chunk_update(ChunkUpdateArray::value_type& chunk_update);
+	void process_completed_chunk_update(decltype(ChunkUpdateArray::value_type::first)& chunk_update);
 
 	int m_render_distance;
 	std::unordered_map<int, std::unordered_map<int, std::unordered_map<int, std::unique_ptr<Chunk>>>> m_chunks;
 	ChunkUpdateArray m_chunk_updates;
 	ChunkUpdateArray m_chunk_updates_low_priority;
-	std::mutex m_chunk_updates_mutex;
 	std::atomic_bool m_run_chunk_updates;
 	std::thread m_chunk_update_thread;
 	const BlockInfo m_block_info;
