@@ -7,6 +7,7 @@ Game::Game() :
 	m_rendering_engine(m_window),
 	m_world{3},
 	m_player{m_input_manager, WorldGen::get_spawn_pos()},
+	m_physical_object_manager(m_world),
 	m_running{true}
 {
 	m_rendering_engine.load_shader("basic_shader", {"position", "texCoord"}, {{UNIFORMTYPE_MAT4, "transform"}});
@@ -20,6 +21,8 @@ Game::Game() :
 		m_running = !m_running;
 		m_window.center_mouse();
 	});
+
+	m_physical_object_manager.add_object(&m_player);
 }
 
 void Game::run()
@@ -94,9 +97,10 @@ void Game::update(std::chrono::nanoseconds delta)
 	if (m_running)
 	{
 		m_player.update(delta);
+		m_physical_object_manager.update(delta);
 	}
 
-	m_world.update(m_player.get_camera().get_position());
+	m_world.update(m_player.get_position());
 	m_rendering_engine.set_mat4("transform", m_rendering_engine.get_projection_matrix() * m_player.get_camera().get_matrix());
 	m_rendering_engine.update_uniforms();
 }

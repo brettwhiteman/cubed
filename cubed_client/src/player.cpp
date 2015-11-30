@@ -3,11 +3,12 @@
 #include <glm/include/gtc/constants.hpp>
 #include <utility>
 
-const float Player::MOVEMENT_SPEED = 4.0f;
+const float Player::ACCELERATION = 15.0f;
 
 Player::Player(InputManager& input_manager, glm::vec3 position) :
-	m_input_manager(input_manager),
-	m_camera(std::move(position), glm::pi<float>() / 3.0f, 1.333333f, 0.05f, 1000.0f)
+	PhysicalObject{position, {0.0f, 0.0f, 0.0f}, 4.0f, 15.0f},
+	m_input_manager{input_manager},
+	m_camera{std::move(position), glm::pi<float>() / 3.0f, 1.333333f, 0.05f, 1000.0f}
 {
 	m_input_manager.add_mouse_move_handler([this](std::pair<int, int>& mouse_offset)
 	{
@@ -20,38 +21,40 @@ void Player::update(std::chrono::nanoseconds delta)
 {
 	auto seconds = std::chrono::duration_cast<std::chrono::duration<float>>(delta);
 
-	glm::vec3 translation;
-	bool movement = false;
+	glm::vec3 acceleration;
 
 	if (m_input_manager.is_key_down(InputManager::KEY_A))
 	{
-		translation -= m_camera.get_right_vector();
-		movement = true;
+		acceleration -= m_camera.get_right_vector();
 	}
 
 	if (m_input_manager.is_key_down(InputManager::KEY_D))
 	{
-		translation += m_camera.get_right_vector();
-		movement = true;
+		acceleration += m_camera.get_right_vector();
 	}
 
 	if (m_input_manager.is_key_down(InputManager::KEY_S))
 	{
-		translation -= m_camera.get_forward_vector();
-		movement = true;
+		acceleration -= m_camera.get_forward_vector();
 	}
 
 	if (m_input_manager.is_key_down(InputManager::KEY_W))
 	{
-		translation += m_camera.get_forward_vector();
-		movement = true;
+		acceleration += m_camera.get_forward_vector();
 	}
 
-	if (movement)
+	if (glm::length(acceleration) > 0.001f)
 	{
-		translation = glm::normalize(translation) * MOVEMENT_SPEED * seconds.count();
-		m_camera.translate(translation);
+		acceleration = glm::normalize(acceleration) * ACCELERATION * seconds.count();
+		m_velocity += acceleration;
+		m_accelerating = true;
 	}
+	else
+	{
+		m_accelerating = false;
+	}
+
+	m_camera.set_position(m_position);
 
 	m_camera.update();
 }

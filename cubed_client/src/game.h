@@ -2,6 +2,7 @@
 #define CUBED_GAME_H
 
 #include "input_manager.h"
+#include "physical_object_manager.h"
 #include "player.h"
 #include "rendering_engine.h"
 #include "window.h"
@@ -24,6 +25,7 @@ private:
 	RenderingEngine m_rendering_engine;
 	World m_world;
 	Player m_player;
+	PhysicalObjectManager m_physical_object_manager;
 	bool m_running;
 };
 

@@ -21,6 +21,7 @@
   <ItemGroup>
     <ClInclude Include="src\block_info.h" />
     <ClInclude Include="src\block_type.h" />
+    <ClInclude Include="src\axis_aligned_bounding_box.h" />
     <ClInclude Include="src\camera.h" />
     <ClInclude Include="src\chunk.h" />
     <ClInclude Include="src\chunk_update.h" />
@@ -28,6 +29,8 @@
     <ClInclude Include="src\game.h" />
     <ClInclude Include="src\input_manager.h" />
     <ClInclude Include="src\mesh_pti.h" />
+    <ClInclude Include="src\physical_object.h" />
+    <ClInclude Include="src\physical_object_manager.h" />
     <ClInclude Include="src\player.h" />
     <ClInclude Include="src\rendering_engine.h" />
     <ClInclude Include="src\shader.h" />
@@ -46,6 +49,7 @@
     <ClCompile Include="src\main.cpp" />
     <ClCompile Include="src\input_manager.cpp" />
     <ClCompile Include="src\mesh_pti.cpp" />
+    <ClCompile Include="src\physical_object_manager.cpp" />
     <ClCompile Include="src\player.cpp" />
     <ClCompile Include="src\rendering_engine.cpp" />
     <ClCompile Include="src\shader.cpp" />

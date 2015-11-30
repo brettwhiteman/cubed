@@ -102,7 +102,7 @@ void World::render()
 	});
 }
 
-BlockType World::get_block_type(int block_x, int block_y, int block_z)
+BlockType World::get_block_type(int block_x, int block_y, int block_z) const
 {
 	auto chunk = get_block_chunk(block_x, block_y, block_z);
 
@@ -229,7 +229,7 @@ void World::load_chunk(int chunk_x, int chunk_y, int chunk_z)
 	p2.first->second.emplace(chunk_z, std::make_unique<Chunk>(chunk_x, chunk_y, chunk_z));
 }
 
-Chunk* World::get_block_chunk(int block_x, int block_y, int block_z)
+Chunk* World::get_block_chunk(int block_x, int block_y, int block_z) const
 {
 	int chunk_x = (block_x < 0 ? block_x - WorldConstants::CHUNK_SIZE + 1 : block_x) / WorldConstants::CHUNK_SIZE;
 	int chunk_y = (block_y < 0 ? block_y - WorldConstants::CHUNK_SIZE + 1 : block_y) / WorldConstants::CHUNK_SIZE;
@@ -238,7 +238,7 @@ Chunk* World::get_block_chunk(int block_x, int block_y, int block_z)
 	return get_chunk(chunk_x, chunk_y, chunk_z);
 }
 
-Chunk* World::get_chunk(int chunk_x, int chunk_y, int chunk_z)
+Chunk* World::get_chunk(int chunk_x, int chunk_y, int chunk_z) const
 {
 	auto itx = m_chunks.find(chunk_x);
 
