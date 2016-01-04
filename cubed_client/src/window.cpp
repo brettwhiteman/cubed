@@ -64,11 +64,19 @@ void Window::update(bool mouse_input)
 				break;
 
 			case SDL_MOUSEBUTTONDOWN:
-				m_input.handle_mouse_down(static_cast<InputManager::MouseButton>(event.button.button));
+				if (mouse_input)
+				{
+					m_input.handle_mouse_down(static_cast<InputManager::MouseButton>(event.button.button));
+				}
+				
 				break;
 
 			case SDL_MOUSEBUTTONUP:
-				m_input.handle_mouse_up(static_cast<InputManager::MouseButton>(event.button.button));
+				if (mouse_input)
+				{
+					m_input.handle_mouse_up(static_cast<InputManager::MouseButton>(event.button.button));
+				}
+
 				break;
 
 			case SDL_WINDOWEVENT:
@@ -77,7 +85,11 @@ void Window::update(bool mouse_input)
 					case SDL_WINDOWEVENT_SIZE_CHANGED:
 						m_window_size = std::make_pair(event.window.data1, event.window.data2);
 						m_window_center = std::make_pair(event.window.data1 / 2, event.window.data2 / 2);
-						center_mouse();
+
+						if (mouse_input)
+						{
+							center_mouse();
+						}
 						
 						for (auto& handler : m_window_resize_handlers)
 						{
