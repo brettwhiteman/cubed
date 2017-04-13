@@ -1,6 +1,7 @@
 *.sdf
 *.opensdf
 *.opendb
+*.VC.db
 /.vs
 /Debug
 /Release

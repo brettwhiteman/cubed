@@ -30,7 +30,7 @@ void Game::run()
 	#ifdef _DEBUG
 		const auto TARGET_FPS = 30;
 	#else
-		const auto TARGET_FPS = 60;
+		const auto TARGET_FPS = 120;
 	#endif
 
 	const auto FRAME_DURATION = std::chrono::nanoseconds{std::nano::den / TARGET_FPS};
@@ -85,7 +85,7 @@ void Game::run()
 		}
 		else
 		{
-			std::this_thread::sleep_for(std::chrono::milliseconds(1));
+			std::this_thread::yield();
 		}
 	}
 }

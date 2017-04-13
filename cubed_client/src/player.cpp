@@ -3,10 +3,10 @@
 #include <glm/include/gtc/constants.hpp>
 #include <utility>
 
-const float Player::ACCELERATION = 15.0f;
+const float Player::ACCELERATION = 30.0f;
 
 Player::Player(InputManager& input_manager, glm::vec3 position) :
-	PhysicalObject{position, {0.0f, 0.0f, 0.0f}, 4.0f, 15.0f},
+	PhysicalObject{position, {0.0f, 0.0f, 0.0f}, 10.0f, 35.0f},
 	m_input_manager{input_manager},
 	m_camera{std::move(position), glm::pi<float>() / 3.0f, 1.333333f, 0.05f, 1000.0f}
 {
